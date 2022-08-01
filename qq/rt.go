@@ -18,7 +18,6 @@ func init() {
 
 var instance = &rt{}
 var logger = utils.GetModuleLogger("kook.route")
-var tem map[string]string
 
 type rt struct {
 }
@@ -37,13 +36,14 @@ func (a *rt) Init() {
 func (a *rt) PostInit() {
 }
 
+var stop bool = true
+
 func (a *rt) Serve(b *bot.Bot) {
 	b.OnGroupMessage(func(c *client.QQClient, msg *message.GroupMessage) {
-		out := autoreply(msg.ToString())
-		if out == "" {
+		if stop {
 			return
 		}
-		m := message.NewSendingMessage().Append(message.NewText(out))
+		m := message.NewSendingMessage().Append(message.NewText("hello"))
 		c.SendGroupMessage(msg.GroupCode, m)
 	})
 }
@@ -53,12 +53,4 @@ func (a *rt) Start(bot *bot.Bot) {
 
 func (a *rt) Stop(bot *bot.Bot, wg *sync.WaitGroup) {
 	defer wg.Done()
-}
-
-func autoreply(in string) string {
-	out, ok := tem[in]
-	if !ok {
-		return ""
-	}
-	return out
 }
