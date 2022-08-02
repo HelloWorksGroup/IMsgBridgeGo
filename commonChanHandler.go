@@ -25,7 +25,7 @@ func commonChanHandler(ctxCommon *khl.EventDataGeneral) {
 	}
 
 	reply := func(words string) string {
-		resp, _ := sendMarkdown(commonChannel, words)
+		resp, _ := sendMarkdown(kookChannel, words)
 		return resp.MsgID
 	}
 
