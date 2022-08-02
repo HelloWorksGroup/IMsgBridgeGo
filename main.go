@@ -27,7 +27,7 @@ func buildUpdateLog() string {
 var buildVersion string = appName + " 0000"
 
 // 茶室频道
-var commonChannel string
+var kookChannel string
 
 type handlerRule struct {
 	matcher string
@@ -74,7 +74,7 @@ func prog(state overseer.State) {
 	rand.Seed(time.Now().UnixNano())
 
 	viper.SetDefault("token", "0")
-	viper.SetDefault("commonChannel", "0")
+	viper.SetDefault("kookChannel", "0")
 	viper.SetDefault("masterID", "")
 	viper.SetDefault("lastwordsID", "")
 	viper.SetDefault("oldversion", "0.0.0")
@@ -86,7 +86,7 @@ func prog(state overseer.State) {
 		panic(fmt.Errorf("Fatal error config file: %s \n", err))
 	}
 	masterID = viper.Get("masterID").(string)
-	commonChannel = viper.Get("commonChannel").(string)
+	kookChannel = viper.Get("kookChannel").(string)
 	if viper.Get("oldversion").(string) != buildVersion {
 		isVersionChange = true
 	}
@@ -118,7 +118,7 @@ func prog(state overseer.State) {
 			card.AddModule_divider()
 			card.AddModule_markdown("当前版本号：`" + buildVersion + "`")
 			card.AddModule_markdown("**更新内容：**\n" + buildUpdateLog())
-			sendKCard(commonChannel, card.String())
+			sendKCard(kookChannel, card.String())
 		}()
 	}
 
@@ -141,7 +141,7 @@ func prog(state overseer.State) {
 	signal.Notify(sc, os.Interrupt, overseer.SIGUSR2)
 	<-sc
 
-	lastResp, _ := sendMarkdown(commonChannel, "`shutdown now`")
+	lastResp, _ := sendMarkdown(kookChannel, "`shutdown now`")
 
 	viper.Set("lastwordsID", lastResp.MsgID)
 	fmt.Println("[Write] lastwordsID=", lastResp.MsgID)
@@ -172,7 +172,7 @@ func markdownMessageHandler(ctx *khl.KmarkdownMessageContext) {
 	switch ctx.Common.TargetID {
 	case botID:
 		directMessageHandler(ctx.Common)
-	case commonChannel:
+	case kookChannel:
 		commonChanHandler(ctx.Common)
 	}
 }
