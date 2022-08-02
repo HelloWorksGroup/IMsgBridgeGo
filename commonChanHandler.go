@@ -14,7 +14,7 @@ var commOnce sync.Once
 var commRules []handlerRule = []handlerRule{
 	{`^qqping`, func(ctxCommon *khl.EventDataGeneral, s []string, f func(string) string) {
 		delay := rand.Intn(500) + rand.Intn(100) + rand.Intn(50) + rand.Intn(14)
-		<-time.After(time.Millisecond*time.Duration(delay) + 2000)
+		<-time.After(time.Millisecond * time.Duration(delay+2000))
 		f("来自 `QQ` 的回复: 字节=`256` 时间=`" + strconv.Itoa(delay) + "ms` TTL=`" + strconv.Itoa(61-rand.Intn(7)) + "`")
 	}},
 }
