@@ -1,17 +1,20 @@
 package main
 
 import (
-	"os"
-	"os/signal"
-
 	"github.com/Logiase/MiraiGo-Template/bot"
 	"github.com/Logiase/MiraiGo-Template/config"
 
-	_ "local/rt"
+	qq "local/rt"
 )
 
 func qqbotInit() {
 	// utils.WriteLogToFS(utils.LogInfoLevel, utils.LogWithStack)
+	qq.SetGroupID(qqGroupCode)
+	qq.OnMsg(MsgRouteQQ2KOOK)
+}
+
+func qqGetKOOK(content string) {
+	qq.MsgRouteKOOK2QQ(content)
 }
 
 func qqbotStart() {
@@ -36,14 +39,12 @@ func qqbotStart() {
 
 	// 刷新好友列表，群列表
 	bot.RefreshList()
-
-	ch := make(chan os.Signal, 1)
-	signal.Notify(ch, os.Interrupt)
-	<-ch
 }
+func qqbotSayhello() {
+}
+
 func qqbotSaybye() {
 }
 
 func qqbotStop() {
-
 }

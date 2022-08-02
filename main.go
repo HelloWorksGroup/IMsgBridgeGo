@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"strconv"
 	"time"
 
 	"math/rand"
@@ -21,24 +22,36 @@ import (
 var appName string = "QQ Hime"
 
 func buildUpdateLog() string {
-	return appName + "初次上线。\n\nHelloWorks-QQ Hime@[GitHub](https://github.com/HelloWorksGroup/KOOK2QQ-bot)"
+	return appName + "初次上线。请多关照。\n\nHelloWorks-QQ Hime@[GitHub](https://github.com/HelloWorksGroup/KOOK2QQ-bot)"
 }
 
-var buildVersion string = appName + " 0000"
+var buildVersion string = appName + " 0001"
 
-// 茶室频道
+// kook频道
 var kookChannel string
+
+// QQ群号
+var qqGroup string
+var qqGroupCode int64
 
 type handlerRule struct {
 	matcher string
 	getter  func(ctxCommon *khl.EventDataGeneral, matchs []string, reply func(string) string)
 }
 
-var isVersionChange bool = false
 var masterID string
 var botID string
 
 var localSession *khl.Session
+
+func MsgRouteQQ2KOOK(name string, content string) {
+	// fmt.Println("MsgRouteQQ2KOOK", kookChannel, content)
+	card := kcard.KHLCard{}
+	card.Init()
+	card.Card.Theme = "success"
+	card.AddModule_markdown("**`" + name + "`** from QQ:\n---\n" + content)
+	sendKCard(kookChannel, card.String())
+}
 
 func sendKCard(target string, content string) (resp *khl.MessageResp, err error) {
 	return localSession.MessageCreate((&khl.MessageCreate{
@@ -69,14 +82,14 @@ func sendMarkdownDirect(target string, content string) (mr *khl.MessageResp, err
 	})
 }
 
-func prog(state overseer.State) {
-	fmt.Printf("App#[%s] start ...\n", state.ID)
-	rand.Seed(time.Now().UnixNano())
+var token string
 
+func getConfig() {
+	rand.Seed(time.Now().UnixNano())
 	viper.SetDefault("token", "0")
 	viper.SetDefault("kookChannel", "0")
+	viper.SetDefault("qqGroup", "0")
 	viper.SetDefault("masterID", "")
-	viper.SetDefault("lastwordsID", "")
 	viper.SetDefault("oldversion", "0.0.0")
 	viper.SetConfigType("json")
 	viper.SetConfigName("config")
@@ -87,18 +100,24 @@ func prog(state overseer.State) {
 	}
 	masterID = viper.Get("masterID").(string)
 	kookChannel = viper.Get("kookChannel").(string)
-	if viper.Get("oldversion").(string) != buildVersion {
-		isVersionChange = true
-	}
-
+	fmt.Println("kookChannel=" + kookChannel)
+	qqGroup = viper.Get("qqGroup").(string)
+	qqGroupCode, _ = strconv.ParseInt(qqGroup, 10, 64)
+	fmt.Println("qqGroupCode=", qqGroupCode)
 	viper.Set("oldversion", buildVersion)
+
+	token = viper.Get("token").(string)
+	fmt.Println("token=" + token)
+}
+
+func prog(state overseer.State) {
+	fmt.Printf("App#[%s] start ...\n", state.ID)
+	getConfig()
 
 	l := log.Logger{
 		Level:  log.InfoLevel,
 		Writer: &log.ConsoleWriter{},
 	}
-	token := viper.Get("token").(string)
-	fmt.Println("token=" + token)
 
 	s := khl.New(token, plog.NewLogger(&l))
 	me, _ := s.UserMe()
@@ -108,43 +127,20 @@ func prog(state overseer.State) {
 	s.Open()
 	localSession = s
 
-	if isVersionChange {
-		go func() {
-			<-time.After(time.Second * time.Duration(3))
-			card := kcard.KHLCard{}
-			card.Init()
-			card.Card.Theme = "success"
-			card.AddModule_header(appName + " 热更新完成")
-			card.AddModule_divider()
-			card.AddModule_markdown("当前版本号：`" + buildVersion + "`")
-			card.AddModule_markdown("**更新内容：**\n" + buildUpdateLog())
-			sendKCard(kookChannel, card.String())
-		}()
-	}
-
 	// Wait here until CTRL-C or other term signal is received.
 	fmt.Println(appName + " is now running.")
 
-	fmt.Println("[Read] lastwordsID=", viper.Get("lastwordsID").(string))
-	if viper.Get("lastwordsID").(string) != "" {
-		go func() {
-			<-time.After(time.Second * time.Duration(7))
-			s.MessageDelete(viper.Get("lastwordsID").(string))
-			viper.Set("lastwordsID", "")
-			viper.WriteConfig()
-		}()
-	}
-
+	qqbotInit()
 	qqbotStart()
+
+	sendMarkdown(kookChannel, "系统已启动")
 
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, os.Interrupt, overseer.SIGUSR2)
 	<-sc
 
-	lastResp, _ := sendMarkdown(kookChannel, "`shutdown now`")
+	sendMarkdown(kookChannel, "系统即将关闭")
 
-	viper.Set("lastwordsID", lastResp.MsgID)
-	fmt.Println("[Write] lastwordsID=", lastResp.MsgID)
 	viper.WriteConfig()
 	fmt.Println("Bot will shutdown after 1 second.")
 
@@ -163,8 +159,6 @@ func main() {
 	})
 }
 
-// FileMessageContext
-// MessageButtonClickContext
 func markdownMessageHandler(ctx *khl.KmarkdownMessageContext) {
 	if ctx.Extra.Author.Bot {
 		return
@@ -173,6 +167,6 @@ func markdownMessageHandler(ctx *khl.KmarkdownMessageContext) {
 	case botID:
 		directMessageHandler(ctx.Common)
 	case kookChannel:
-		commonChanHandler(ctx.Common)
+		commonChanHandler(ctx)
 	}
 }

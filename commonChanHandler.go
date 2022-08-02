@@ -19,7 +19,8 @@ var commRules []handlerRule = []handlerRule{
 	}},
 }
 
-func commonChanHandler(ctxCommon *khl.EventDataGeneral) {
+func commonChanHandler(ctx *khl.KmarkdownMessageContext) {
+	ctxCommon := ctx.Common
 	if ctxCommon.Type != khl.MessageTypeKMarkdown {
 		return
 	}
@@ -36,6 +37,10 @@ func commonChanHandler(ctxCommon *khl.EventDataGeneral) {
 		if len(matchs) > 0 {
 			go v.getter(ctxCommon, matchs, reply)
 			return
+		} else {
+			// DONE: 转发
+			// msg.Sender.Nickname + " from QQ:\n---\n" + msg.ToString()
+			qqGetKOOK(ctx.Extra.Author.Nickname + " from KOOK:\n" + ctxCommon.Content)
 		}
 	}
 }
