@@ -59,10 +59,11 @@ func (a *rt) PostInit() {
 
 func (a *rt) Serve(b *bot.Bot) {
 	b.GroupMessageEvent.Subscribe(func(c *client.QQClient, msg *message.GroupMessage) {
-		fmt.Println("[QQ]:", msg.GroupCode, msg.Sender.Nickname, msg.ToString())
 		if msg.GroupCode != validGroupId {
+			fmt.Println("[QQ]:", msg.GroupName, msg.Sender.Nickname+": "+msg.ToString())
 			return
 		}
+		fmt.Println("[QQQQ]:", msg.Sender.Nickname+": "+msg.ToString())
 		if msg.ToString() == "ping" {
 			go func() {
 				delay := rand.Intn(500) + rand.Intn(100) + rand.Intn(50) + rand.Intn(14)

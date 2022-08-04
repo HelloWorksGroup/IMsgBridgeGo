@@ -95,7 +95,7 @@ func kookLog(markdown string) {
 		strconv.Itoa(localTime.Second())
 	fmt.Println("["+tstr+" KOOK LOG]:", markdown)
 	if stdoutChannel != "0" {
-		sendMarkdown(stdoutChannel, "`"+tstr+"`: "+markdown)
+		sendMarkdown(stdoutChannel, "`"+tstr+"` "+markdown)
 	}
 }
 
