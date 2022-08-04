@@ -3,6 +3,7 @@ package route
 // 本模块用于将QQ消息转发至KOOK，并将KOOK消息转发至QQ
 
 import (
+	"fmt"
 	"math/rand"
 	"strconv"
 	"sync"
@@ -56,11 +57,9 @@ func (a *rt) Init() {
 func (a *rt) PostInit() {
 }
 
-var stop bool = true
-
 func (a *rt) Serve(b *bot.Bot) {
 	b.GroupMessageEvent.Subscribe(func(c *client.QQClient, msg *message.GroupMessage) {
-		// fmt.Println(msg.GroupCode, msg.Sender.Nickname, msg.ToString())
+		fmt.Println("[QQ]:", msg.GroupCode, msg.Sender.Nickname, msg.ToString())
 		if msg.GroupCode != validGroupId {
 			return
 		}
