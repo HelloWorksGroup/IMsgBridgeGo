@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"math/rand"
 	"regexp"
 	"strconv"
@@ -40,6 +41,7 @@ func commonChanHandler(ctx *khl.KmarkdownMessageContext) {
 		} else {
 			// DONE: 转发
 			// msg.Sender.Nickname + " from QQ:\n---\n" + msg.ToString()
+			fmt.Println("[KOOK]:", ctx.Extra.Author.Nickname, ctxCommon.Content)
 			qqGetKOOK(ctx.Extra.Author.Nickname + " from KOOK:\n" + ctxCommon.Content)
 		}
 	}

@@ -30,6 +30,9 @@ var buildVersion string = appName + " 0001"
 // kook频道
 var kookChannel string
 
+// stdout频道
+var stdoutChannel string
+
 // QQ群号
 var qqGroup string
 var qqGroupCode int64
@@ -82,12 +85,27 @@ func sendMarkdownDirect(target string, content string) (mr *khl.MessageResp, err
 	})
 }
 
+func kookLog(markdown string) {
+	localTime := time.Now().Local()
+	strconv.Itoa(localTime.Hour())
+	strconv.Itoa(localTime.Minute())
+	strconv.Itoa(localTime.Second())
+	tstr := strconv.Itoa(localTime.Hour()) + ":" +
+		strconv.Itoa(localTime.Minute()) + ":" +
+		strconv.Itoa(localTime.Second())
+	fmt.Println("["+tstr+" KOOK LOG]:", markdown)
+	if stdoutChannel != "0" {
+		sendMarkdown(stdoutChannel, "`"+tstr+"`: "+markdown)
+	}
+}
+
 var token string
 
 func getConfig() {
 	rand.Seed(time.Now().UnixNano())
 	viper.SetDefault("token", "0")
 	viper.SetDefault("kookChannel", "0")
+	viper.SetDefault("stdoutChannel", "0")
 	viper.SetDefault("qqGroup", "0")
 	viper.SetDefault("masterID", "")
 	viper.SetDefault("oldversion", "0.0.0")
@@ -96,11 +114,13 @@ func getConfig() {
 	viper.AddConfigPath(".")
 	err := viper.ReadInConfig()
 	if err != nil {
-		panic(fmt.Errorf("Fatal error config file: %s \n", err))
+		panic(fmt.Errorf("fatal error config file: %s", err))
 	}
 	masterID = viper.Get("masterID").(string)
 	kookChannel = viper.Get("kookChannel").(string)
 	fmt.Println("kookChannel=" + kookChannel)
+	stdoutChannel = viper.Get("stdoutChannel").(string)
+	fmt.Println("stdoutChannel=" + stdoutChannel)
 	qqGroup = viper.Get("qqGroup").(string)
 	qqGroupCode, _ = strconv.ParseInt(qqGroup, 10, 64)
 	fmt.Println("qqGroupCode=", qqGroupCode)
@@ -133,13 +153,13 @@ func prog(state overseer.State) {
 	qqbotInit()
 	qqbotStart()
 
-	sendMarkdown(kookChannel, "系统已启动")
+	kookLog("系统已启动")
 
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, os.Interrupt, overseer.SIGUSR2)
 	<-sc
 
-	sendMarkdown(kookChannel, "系统即将关闭")
+	kookLog("系统即将关闭")
 
 	viper.WriteConfig()
 	fmt.Println("Bot will shutdown after 1 second.")
