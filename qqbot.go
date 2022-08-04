@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/Logiase/MiraiGo-Template/bot"
-	"github.com/Logiase/MiraiGo-Template/config"
+	"github.com/Nigh/MiraiGo-Template-Mod/bot"
+	"github.com/Nigh/MiraiGo-Template-Mod/config"
 
 	qq "local/rt"
 )
@@ -28,7 +28,7 @@ func qqbotStart() {
 	// 使用协议
 	// 不同协议可能会有部分功能无法使用
 	// 在登陆前切换协议
-	bot.UseProtocol(bot.AndroidWatch)
+	bot.UseProtocol(bot.IPad)
 
 	// 登录
 	err := bot.Login()

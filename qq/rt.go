@@ -8,9 +8,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Logiase/MiraiGo-Template/bot"
 	"github.com/Mrs4s/MiraiGo/client"
 	"github.com/Mrs4s/MiraiGo/message"
+	"github.com/Nigh/MiraiGo-Template-Mod/bot"
 )
 
 type rt struct {

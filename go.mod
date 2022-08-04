@@ -3,7 +3,7 @@ module github.com/HelloWorksGroup/KOOK2QQ-bot
 go 1.18
 
 require (
-	github.com/Logiase/MiraiGo-Template v0.0.0-20220412065005-27063e73adf8
+	github.com/Nigh/MiraiGo-Template-Mod v0.0.0-20220804125811-8dc160f3287f
 	github.com/jpillora/overseer v1.1.6
 	github.com/lonelyevil/khl v0.0.27
 	github.com/lonelyevil/khl/log_adapter/plog v0.0.27
@@ -28,7 +28,6 @@ require (
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/jpillora/s3 v1.1.4 // indirect
-	github.com/klauspost/compress v1.15.9 // indirect
 	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible // indirect
 	github.com/lestrrat-go/strftime v1.0.6 // indirect
 	github.com/magiconair/properties v1.8.6 // indirect
@@ -53,9 +52,8 @@ require (
 	github.com/tidwall/pretty v1.2.0 // indirect
 	github.com/tuotoo/qrcode v0.0.0-20220425170535-52ccc2bebf5d // indirect
 	go.uber.org/atomic v1.9.0 // indirect
-	golang.org/x/net v0.0.0-20220728211354-c7608f3a8462 // indirect
 	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4 // indirect
-	golang.org/x/sys v0.0.0-20220731174439-a90be440212d // indirect
+	golang.org/x/sys v0.0.0-20220803195053-6e608f9ce704 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	gopkg.in/ini.v1 v1.66.6 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
