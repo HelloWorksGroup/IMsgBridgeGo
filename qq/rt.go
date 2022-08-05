@@ -80,7 +80,7 @@ func (a *rt) Serve(b *bot.Bot) {
 		} else {
 			// DONE: 转发
 			// fmt.Println("msgRouteQQ2KOOK", msg.Sender.Nickname, msg.ToString())
-			go msgRouteQQ2KOOK(msg.Sender.Nickname, msg.ToString())
+			go msgRouteQQ2KOOK(msg.Sender.Nickname, qqGroupMsgParse(msg))
 		}
 	})
 }
@@ -90,4 +90,26 @@ func (a *rt) Start(bot *bot.Bot) {
 
 func (a *rt) Stop(bot *bot.Bot, wg *sync.WaitGroup) {
 	defer wg.Done()
+}
+
+func qqGroupMsgParse(msg *message.GroupMessage) (qqMsgStr string) {
+	for _, elem := range msg.Elements {
+		switch e := elem.(type) {
+		case *message.TextElement:
+			qqMsgStr += e.Content
+		case *message.GroupImageElement:
+			qqMsgStr += "\n" + e.Url + "\n"
+		case *message.FaceElement:
+			qqMsgStr += "[表情:" + e.Name + "]"
+		case *message.MarketFaceElement:
+			qqMsgStr += "[商店表情:" + e.Name + "]"
+		case *message.AtElement:
+			qqMsgStr += "[" + e.Display + "]"
+		case *message.RedBagElement:
+			qqMsgStr += "[红包:" + e.Title + "]"
+		case *message.ReplyElement:
+			qqMsgStr += "[回复:" + strconv.FormatInt(int64(e.ReplySeq), 10) + "]"
+		}
+	}
+	return
 }
