@@ -19,6 +19,11 @@ type rt struct {
 
 var instance *rt
 
+type QQMsg struct {
+	Type    int
+	Content string
+}
+
 func init() {
 	instance = &rt{}
 	bot.RegisterModule(instance)
@@ -30,9 +35,9 @@ func SetGroupID(n int64) {
 	validGroupId = n
 }
 
-var msgRouteQQ2KOOK func(name string, msg string)
+var msgRouteQQ2KOOK func(name string, msg []QQMsg)
 
-func OnMsg(handler func(name string, msg string)) {
+func OnMsg(handler func(name string, msg []QQMsg)) {
 	msgRouteQQ2KOOK = handler
 }
 
@@ -92,23 +97,23 @@ func (a *rt) Stop(bot *bot.Bot, wg *sync.WaitGroup) {
 	defer wg.Done()
 }
 
-func qqGroupMsgParse(msg *message.GroupMessage) (qqMsgStr string) {
+func qqGroupMsgParse(msg *message.GroupMessage) (qqmsg []QQMsg) {
 	for _, elem := range msg.Elements {
 		switch e := elem.(type) {
 		case *message.TextElement:
-			qqMsgStr += e.Content
+			qqmsg = append(qqmsg, QQMsg{0, e.Content})
 		case *message.GroupImageElement:
-			qqMsgStr += "\n" + e.Url + "\n"
+			qqmsg = append(qqmsg, QQMsg{1, e.Url})
 		case *message.FaceElement:
-			qqMsgStr += "[表情:" + e.Name + "]"
+			qqmsg = append(qqmsg, QQMsg{0, "[表情:" + e.Name + "]"})
 		case *message.MarketFaceElement:
-			qqMsgStr += "[商店表情:" + e.Name + "]"
+			qqmsg = append(qqmsg, QQMsg{0, "[商店表情:" + e.Name + "]"})
 		case *message.AtElement:
-			qqMsgStr += "[" + e.Display + "]"
+			qqmsg = append(qqmsg, QQMsg{0, "[" + e.Display + "]"})
 		case *message.RedBagElement:
-			qqMsgStr += "[红包:" + e.Title + "]"
+			qqmsg = append(qqmsg, QQMsg{0, "[红包:" + e.Title + "]"})
 		case *message.ReplyElement:
-			qqMsgStr += "[回复:" + strconv.FormatInt(int64(e.ReplySeq), 10) + "]"
+			qqmsg = append(qqmsg, QQMsg{0, "[回复:" + strconv.FormatInt(int64(e.ReplySeq), 10) + "]"})
 		}
 	}
 	return

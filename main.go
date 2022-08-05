@@ -11,6 +11,8 @@ import (
 
 	kcard "local/khlcard"
 
+	qq "local/rt"
+
 	"github.com/jpillora/overseer"
 	"github.com/jpillora/overseer/fetcher"
 	"github.com/lonelyevil/khl"
@@ -47,12 +49,20 @@ var botID string
 
 var localSession *khl.Session
 
-func MsgRouteQQ2KOOK(name string, content string) {
+func MsgRouteQQ2KOOK(name string, qqmsg []qq.QQMsg) {
 	// fmt.Println("MsgRouteQQ2KOOK", kookChannel, content)
 	card := kcard.KHLCard{}
 	card.Init()
 	card.Card.Theme = "success"
-	card.AddModule_markdown("**`" + name + "`** from QQ:\n---\n" + content)
+	card.AddModule_markdown("**`" + name + "`** from QQ:\n---")
+	for _, v := range qqmsg {
+		switch v.Type {
+		case 0:
+			card.AddModule_markdown(v.Content)
+		case 1:
+			card.AddModule_image(v.Content)
+		}
+	}
 	sendKCard(kookChannel, card.String())
 }
 
