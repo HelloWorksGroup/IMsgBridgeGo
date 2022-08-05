@@ -64,6 +64,12 @@ func (a *rt) Serve(b *bot.Bot) {
 			return
 		}
 		fmt.Println("[QQQQ]:", msg.Sender.Nickname+": "+msg.ToString())
+		for _, elem := range msg.Elements {
+			switch e := elem.(type) {
+			case *message.GroupImageElement:
+				fmt.Println("ImageURL=", e.Url)
+			}
+		}
 		if msg.ToString() == "ping" {
 			go func() {
 				delay := rand.Intn(500) + rand.Intn(100) + rand.Intn(50) + rand.Intn(14)
