@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math/rand"
+	"path"
 	"regexp"
 	"strconv"
 	"sync"
@@ -47,7 +48,13 @@ func markdownHandler(ctx *khl.KmarkdownMessageContext) {
 func imageHandler(ctx *khl.ImageMessageContext) {
 	fmt.Println("[KOOK Image]:", ctx.Extra.Author.Nickname, ctx.Extra.Attachments.URL)
 	if rand.Intn(100) <= 200 {
-		qqGetKookMarkdown(ctx.Extra.Author.Nickname + ":\n[图片未通过QQ审查]\n请访问 " + kookUrl + " 查看")
+		var title string
+		if rand.Intn(100) <= 50 {
+			title = "[图片未通过审查]"
+		} else {
+			title = "[当前版本QQ不支持的消息]"
+		}
+		qqGetKookMarkdown(ctx.Extra.Author.Nickname + ":" + title + "\n" + path.Base(ctx.Extra.Attachments.URL) + "\n请访问 " + kookUrl + " 查看")
 	} else {
 		qqGetKookImage(ctx.Extra.Author.Nickname, ctx.Extra.Attachments.URL)
 	}
