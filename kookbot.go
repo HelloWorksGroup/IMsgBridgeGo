@@ -46,12 +46,12 @@ func markdownHandler(ctx *khl.KmarkdownMessageContext) {
 
 func imageHandler(ctx *khl.ImageMessageContext) {
 	fmt.Println("[KOOK Image]:", ctx.Extra.Author.Nickname, ctx.Extra.Attachments.URL)
-	qqGetKOOK(ctx.Extra.Author.Nickname + " from KOOK:\n[当前QQ版本不支持查看KOOK图片] 请访问 " + ctx.Common.Content + " 查看本条消息")
+	qqGetKOOK(ctx.Extra.Author.Nickname + ":\n[当前QQ版本不支持的消息]\n请访问 " + koolUrl + " 查看")
 }
 
 func fileHandler(ctx *khl.FileMessageContext) {
 	fmt.Println("[KOOK File]:", ctx.Extra.Author.Nickname, ctx.Extra.Attachments.URL)
-	qqGetKOOK(ctx.Extra.Author.Nickname + " from KOOK:\n[当前QQ版本不支持查看KOOK文件] 请访问 " + ctx.Common.Content + " 查看本条消息")
+	qqGetKOOK(ctx.Extra.Author.Nickname + ":\n[当前QQ版本不支持的消息]\n请访问 " + koolUrl + " 查看")
 }
 
 func portMarkdown(ctxCommon *khl.EventDataGeneral, s []string, f func(string) string) {

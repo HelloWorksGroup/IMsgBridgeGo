@@ -27,7 +27,7 @@ func buildUpdateLog() string {
 	return appName + "初次上线。请多关照。\n\nHelloWorks-QQ Hime@[GitHub](https://github.com/HelloWorksGroup/KOOK2QQ-bot)"
 }
 
-var buildVersion string = appName + " 0003"
+var buildVersion string = appName + " 0004"
 
 // kook邀请链接
 var koolUrl string
