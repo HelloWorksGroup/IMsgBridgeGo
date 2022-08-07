@@ -116,7 +116,7 @@ func getConfig() {
 	rand.Seed(time.Now().UnixNano())
 	viper.SetDefault("token", "0")
 	viper.SetDefault("kookChannel", "0")
-	viper.SetDefault("koolUrl", "https://kook.top/dLH68C")
+	viper.SetDefault("koolUrl", "")
 	viper.SetDefault("stdoutChannel", "0")
 	viper.SetDefault("qqGroup", "0")
 	viper.SetDefault("masterID", "")
@@ -158,6 +158,8 @@ func prog(state overseer.State) {
 	fmt.Println("ID=" + me.ID)
 	botID = me.ID
 	s.AddHandler(markdownMessageHandler)
+	s.AddHandler(imageMessageHandler)
+	s.AddHandler(fileMessageHandler)
 	s.Open()
 	localSession = s
 
