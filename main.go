@@ -27,7 +27,10 @@ func buildUpdateLog() string {
 	return appName + "初次上线。请多关照。\n\nHelloWorks-QQ Hime@[GitHub](https://github.com/HelloWorksGroup/KOOK2QQ-bot)"
 }
 
-var buildVersion string = appName + " 0001"
+var buildVersion string = appName + " 0003"
+
+// kook邀请链接
+var koolUrl string
 
 // kook频道
 var kookChannel string
@@ -113,6 +116,7 @@ func getConfig() {
 	rand.Seed(time.Now().UnixNano())
 	viper.SetDefault("token", "0")
 	viper.SetDefault("kookChannel", "0")
+	viper.SetDefault("koolUrl", "https://kook.top/dLH68C")
 	viper.SetDefault("stdoutChannel", "0")
 	viper.SetDefault("qqGroup", "0")
 	viper.SetDefault("masterID", "")
@@ -127,6 +131,8 @@ func getConfig() {
 	masterID = viper.Get("masterID").(string)
 	kookChannel = viper.Get("kookChannel").(string)
 	fmt.Println("kookChannel=" + kookChannel)
+	koolUrl = viper.Get("koolUrl").(string)
+	fmt.Println("koolUrl=" + koolUrl)
 	stdoutChannel = viper.Get("stdoutChannel").(string)
 	fmt.Println("stdoutChannel=" + stdoutChannel)
 	qqGroup = viper.Get("qqGroup").(string)
@@ -161,6 +167,8 @@ func prog(state overseer.State) {
 	qqbotInit()
 	qqbotStart()
 
+	viper.WriteConfig()
+
 	kookLog("系统已启动")
 
 	sc := make(chan os.Signal, 1)
@@ -169,7 +177,6 @@ func prog(state overseer.State) {
 
 	kookLog("系统即将关闭")
 
-	viper.WriteConfig()
 	fmt.Println("Bot will shutdown after 1 second.")
 
 	<-time.After(time.Second * time.Duration(1))
@@ -195,6 +202,22 @@ func markdownMessageHandler(ctx *khl.KmarkdownMessageContext) {
 	case botID:
 		directMessageHandler(ctx.Common)
 	case kookChannel:
-		commonChanHandler(ctx)
+		markdownHandler(ctx)
+	case stdoutChannel:
+		stdinHandler(ctx)
 	}
+}
+
+func imageMessageHandler(ctx *khl.ImageMessageContext) {
+	if ctx.Extra.Author.Bot || ctx.Common.TargetID != kookChannel {
+		return
+	}
+	imageHandler(ctx)
+}
+
+func fileMessageHandler(ctx *khl.FileMessageContext) {
+	if ctx.Extra.Author.Bot || ctx.Common.TargetID != kookChannel {
+		return
+	}
+	fileHandler(ctx)
 }
