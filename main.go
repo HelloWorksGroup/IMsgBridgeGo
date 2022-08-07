@@ -29,10 +29,14 @@ import (
 var appName string = "QQ Hime"
 
 func buildUpdateLog() string {
-	return appName + "初次上线。请多关照。\n\nHelloWorks-QQ Hime@[GitHub](https://github.com/HelloWorksGroup/KOOK2QQ-bot)"
+	updateLog := ""
+	updateLog += "1. 因分享图片卡片功能无效，暂时关闭\n"
+	updateLog += "2. 恢复更新信息发布功能\n"
+	updateLog += "\n\nHelloWorks-QQ Hime@[GitHub](https://github.com/HelloWorksGroup/KOOK2QQ-bot)"
+	return updateLog
 }
 
-var buildVersion string = appName + " 0004"
+var buildVersion string = appName + " 0005"
 
 // kook邀请链接
 var kookUrl string
@@ -144,7 +148,6 @@ func getConfig() {
 	qqGroup = viper.Get("qqGroup").(string)
 	qqGroupCode, _ = strconv.ParseInt(qqGroup, 10, 64)
 	fmt.Println("qqGroupCode=", qqGroupCode)
-	viper.Set("oldversion", buildVersion)
 
 	token = viper.Get("token").(string)
 	fmt.Println("token=" + token)
@@ -175,6 +178,21 @@ func prog(state overseer.State) {
 	qqbotInit()
 	qqbotStart()
 
+	if viper.Get("oldversion").(string) != buildVersion {
+		go func() {
+			<-time.After(time.Second * time.Duration(3))
+			card := kcard.KHLCard{}
+			card.Init()
+			card.Card.Theme = "success"
+			card.AddModule_header(appName + " 热更新完成")
+			card.AddModule_divider()
+			card.AddModule_markdown("当前版本号：`" + buildVersion + "`")
+			card.AddModule_markdown("**更新内容：**\n" + buildUpdateLog())
+			sendKCard(stdoutChannel, card.String())
+		}()
+	}
+
+	viper.Set("oldversion", buildVersion)
 	viper.WriteConfig()
 
 	kookLog("系统已启动")
