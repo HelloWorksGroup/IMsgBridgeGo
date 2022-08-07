@@ -30,7 +30,7 @@ func buildUpdateLog() string {
 var buildVersion string = appName + " 0004"
 
 // kook邀请链接
-var koolUrl string
+var kookUrl string
 
 // kook频道
 var kookChannel string
@@ -52,6 +52,7 @@ var botID string
 
 var localSession *khl.Session
 
+// TODO: 相同用户短时间连续发言自动合并
 func MsgRouteQQ2KOOK(name string, qqmsg []qq.QQMsg) {
 	// fmt.Println("MsgRouteQQ2KOOK", kookChannel, content)
 	card := kcard.KHLCard{}
@@ -131,8 +132,8 @@ func getConfig() {
 	masterID = viper.Get("masterID").(string)
 	kookChannel = viper.Get("kookChannel").(string)
 	fmt.Println("kookChannel=" + kookChannel)
-	koolUrl = viper.Get("koolUrl").(string)
-	fmt.Println("koolUrl=" + koolUrl)
+	kookUrl = viper.Get("koolUrl").(string)
+	fmt.Println("koolUrl=" + kookUrl)
 	stdoutChannel = viper.Get("stdoutChannel").(string)
 	fmt.Println("stdoutChannel=" + stdoutChannel)
 	qqGroup = viper.Get("qqGroup").(string)

@@ -41,17 +41,21 @@ func stdinHandler(ctx *khl.KmarkdownMessageContext) {
 
 func markdownHandler(ctx *khl.KmarkdownMessageContext) {
 	fmt.Println("[KOOK Markdown]:", ctx.Extra.Author.Nickname, ctx.Common.Content)
-	qqGetKOOK(ctx.Extra.Author.Nickname + " from KOOK:\n" + ctx.Common.Content)
+	qqGetKookMarkdown(ctx.Extra.Author.Nickname + " from KOOK:\n" + ctx.Common.Content)
 }
 
 func imageHandler(ctx *khl.ImageMessageContext) {
 	fmt.Println("[KOOK Image]:", ctx.Extra.Author.Nickname, ctx.Extra.Attachments.URL)
-	qqGetKOOK(ctx.Extra.Author.Nickname + ":\n[当前QQ版本不支持的消息]\n请访问 " + koolUrl + " 查看")
+	if rand.Intn(100) <= 10 {
+		qqGetKookMarkdown(ctx.Extra.Author.Nickname + ":\n[图片未通过QQ审查]\n请访问 " + kookUrl + " 查看")
+	} else {
+		qqGetKookImage(ctx.Extra.Author.Nickname, ctx.Extra.Attachments.URL)
+	}
 }
 
 func fileHandler(ctx *khl.FileMessageContext) {
 	fmt.Println("[KOOK File]:", ctx.Extra.Author.Nickname, ctx.Extra.Attachments.URL)
-	qqGetKOOK(ctx.Extra.Author.Nickname + ":\n[当前QQ版本不支持的消息]\n请访问 " + koolUrl + " 查看")
+	qqGetKookMarkdown(ctx.Extra.Author.Nickname + ":\n[当前QQ版本不支持的消息]\n请访问 " + kookUrl + " 查看")
 }
 
 func portMarkdown(ctxCommon *khl.EventDataGeneral, s []string, f func(string) string) {

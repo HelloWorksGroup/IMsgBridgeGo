@@ -41,9 +41,27 @@ func OnMsg(handler func(name string, msg []QQMsg)) {
 	msgRouteQQ2KOOK = handler
 }
 
-func MsgRouteKOOK2QQ(content string) {
+func RouteKOOK2QQText(content string) {
 	go func() {
 		m := message.NewSendingMessage().Append(message.NewText(content))
+		bot.Instance.SendGroupMessage(validGroupId, m)
+	}()
+}
+
+func NewImageShare(url, title, image string) *(message.ServiceElement) {
+	template := fmt.Sprintf(`<?xml version="1.0" encoding="utf-8"?><msg flag="3" templateID="12345" action="web" brief="[KOOK图片] %s" serviceID="1" url="%s"><item layout="1"><title>%v</title><picture cover="%v"/></item><source/></msg>`,
+		title, url, image, title)
+	return &message.ServiceElement{
+		Id:      1,
+		Content: template,
+		ResId:   url,
+		SubType: "UrlShare",
+	}
+}
+
+func RouteKOOK2QQImage(displayName string, imageUrl string, linkUrl string) {
+	go func() {
+		m := message.NewSendingMessage().Append(NewImageShare(linkUrl, "由 "+displayName+" 发送", imageUrl))
 		bot.Instance.SendGroupMessage(validGroupId, m)
 	}()
 }
