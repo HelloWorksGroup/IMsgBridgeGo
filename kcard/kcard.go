@@ -90,6 +90,17 @@ func (card *KHLCard) AddModule(module KModule) {
 	card.Card.Modules = append(card.Card.Modules, module)
 }
 
+func (card *KHLCard) AddModule_image(url string) {
+	card.Card.Modules = append(card.Card.Modules, KModule{
+		Type: "container",
+		Elements: []KField{
+			{
+				Type: "image",
+				Src:  url,
+			},
+		},
+	})
+}
 func (card *KHLCard) AddModule_markdown(content string) {
 	card.Card.Modules = append(card.Card.Modules, KModule{
 		Type: "section",

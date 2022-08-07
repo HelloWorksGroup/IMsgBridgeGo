@@ -13,8 +13,11 @@ func qqbotInit() {
 	qq.OnMsg(MsgRouteQQ2KOOK)
 }
 
-func qqGetKOOK(content string) {
-	qq.MsgRouteKOOK2QQ(content)
+func qqGetKookMarkdown(content string) {
+	qq.RouteKOOK2QQText(content)
+}
+func qqGetKookImage(displayName string, imageUrl string) {
+	qq.RouteKOOK2QQImage(displayName, imageUrl, kookUrl)
 }
 
 func qqbotStart() {

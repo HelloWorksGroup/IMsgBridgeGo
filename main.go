@@ -11,6 +11,8 @@ import (
 
 	kcard "local/khlcard"
 
+	qq "local/rt"
+
 	"github.com/jpillora/overseer"
 	"github.com/jpillora/overseer/fetcher"
 	"github.com/lonelyevil/khl"
@@ -19,13 +21,25 @@ import (
 	"github.com/spf13/viper"
 )
 
+// TODO:
+// qq 二维码发送至 kook 登录
+// qq 接口由 kook stdio 频道控制
+// 实现 kook 图片转发至 qq
+
 var appName string = "QQ Hime"
 
 func buildUpdateLog() string {
-	return appName + "初次上线。请多关照。\n\nHelloWorks-QQ Hime@[GitHub](https://github.com/HelloWorksGroup/KOOK2QQ-bot)"
+	updateLog := ""
+	updateLog += "1. 因分享图片卡片功能无效，暂时关闭\n"
+	updateLog += "2. 恢复更新信息发布功能\n"
+	updateLog += "\n\nHelloWorks-QQ Hime@[GitHub](https://github.com/HelloWorksGroup/KOOK2QQ-bot)"
+	return updateLog
 }
 
-var buildVersion string = appName + " 0001"
+var buildVersion string = appName + " 0005"
+
+// kook邀请链接
+var kookUrl string
 
 // kook频道
 var kookChannel string
@@ -47,12 +61,21 @@ var botID string
 
 var localSession *khl.Session
 
-func MsgRouteQQ2KOOK(name string, content string) {
+// TODO: 相同用户短时间连续发言自动合并
+func MsgRouteQQ2KOOK(name string, qqmsg []qq.QQMsg) {
 	// fmt.Println("MsgRouteQQ2KOOK", kookChannel, content)
 	card := kcard.KHLCard{}
 	card.Init()
 	card.Card.Theme = "success"
-	card.AddModule_markdown("**`" + name + "`** from QQ:\n---\n" + content)
+	card.AddModule_markdown("**`" + name + "`** from QQ:\n---")
+	for _, v := range qqmsg {
+		switch v.Type {
+		case 0:
+			card.AddModule_markdown(v.Content)
+		case 1:
+			card.AddModule_image(v.Content)
+		}
+	}
 	sendKCard(kookChannel, card.String())
 }
 
@@ -90,9 +113,7 @@ func kookLog(markdown string) {
 	strconv.Itoa(localTime.Hour())
 	strconv.Itoa(localTime.Minute())
 	strconv.Itoa(localTime.Second())
-	tstr := strconv.Itoa(localTime.Hour()) + ":" +
-		strconv.Itoa(localTime.Minute()) + ":" +
-		strconv.Itoa(localTime.Second())
+	tstr := fmt.Sprintf("%02d:%02d:%02d", localTime.Hour(), localTime.Minute(), localTime.Second())
 	fmt.Println("["+tstr+" KOOK LOG]:", markdown)
 	if stdoutChannel != "0" {
 		sendMarkdown(stdoutChannel, "`"+tstr+"` "+markdown)
@@ -105,6 +126,7 @@ func getConfig() {
 	rand.Seed(time.Now().UnixNano())
 	viper.SetDefault("token", "0")
 	viper.SetDefault("kookChannel", "0")
+	viper.SetDefault("koolUrl", "")
 	viper.SetDefault("stdoutChannel", "0")
 	viper.SetDefault("qqGroup", "0")
 	viper.SetDefault("masterID", "")
@@ -119,12 +141,13 @@ func getConfig() {
 	masterID = viper.Get("masterID").(string)
 	kookChannel = viper.Get("kookChannel").(string)
 	fmt.Println("kookChannel=" + kookChannel)
+	kookUrl = viper.Get("koolUrl").(string)
+	fmt.Println("koolUrl=" + kookUrl)
 	stdoutChannel = viper.Get("stdoutChannel").(string)
 	fmt.Println("stdoutChannel=" + stdoutChannel)
 	qqGroup = viper.Get("qqGroup").(string)
 	qqGroupCode, _ = strconv.ParseInt(qqGroup, 10, 64)
 	fmt.Println("qqGroupCode=", qqGroupCode)
-	viper.Set("oldversion", buildVersion)
 
 	token = viper.Get("token").(string)
 	fmt.Println("token=" + token)
@@ -144,6 +167,8 @@ func prog(state overseer.State) {
 	fmt.Println("ID=" + me.ID)
 	botID = me.ID
 	s.AddHandler(markdownMessageHandler)
+	s.AddHandler(imageMessageHandler)
+	s.AddHandler(fileMessageHandler)
 	s.Open()
 	localSession = s
 
@@ -153,6 +178,23 @@ func prog(state overseer.State) {
 	qqbotInit()
 	qqbotStart()
 
+	if viper.Get("oldversion").(string) != buildVersion {
+		go func() {
+			<-time.After(time.Second * time.Duration(3))
+			card := kcard.KHLCard{}
+			card.Init()
+			card.Card.Theme = "success"
+			card.AddModule_header(appName + " 热更新完成")
+			card.AddModule_divider()
+			card.AddModule_markdown("当前版本号：`" + buildVersion + "`")
+			card.AddModule_markdown("**更新内容：**\n" + buildUpdateLog())
+			sendKCard(stdoutChannel, card.String())
+		}()
+	}
+
+	viper.Set("oldversion", buildVersion)
+	viper.WriteConfig()
+
 	kookLog("系统已启动")
 
 	sc := make(chan os.Signal, 1)
@@ -161,7 +203,6 @@ func prog(state overseer.State) {
 
 	kookLog("系统即将关闭")
 
-	viper.WriteConfig()
 	fmt.Println("Bot will shutdown after 1 second.")
 
 	<-time.After(time.Second * time.Duration(1))
@@ -187,6 +228,22 @@ func markdownMessageHandler(ctx *khl.KmarkdownMessageContext) {
 	case botID:
 		directMessageHandler(ctx.Common)
 	case kookChannel:
-		commonChanHandler(ctx)
+		markdownHandler(ctx)
+	case stdoutChannel:
+		stdinHandler(ctx)
 	}
+}
+
+func imageMessageHandler(ctx *khl.ImageMessageContext) {
+	if ctx.Extra.Author.Bot || ctx.Common.TargetID != kookChannel {
+		return
+	}
+	imageHandler(ctx)
+}
+
+func fileMessageHandler(ctx *khl.FileMessageContext) {
+	if ctx.Extra.Author.Bot || ctx.Common.TargetID != kookChannel {
+		return
+	}
+	fileHandler(ctx)
 }
