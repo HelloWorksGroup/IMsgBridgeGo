@@ -21,6 +21,11 @@ import (
 	"github.com/spf13/viper"
 )
 
+// TODO:
+// qq 二维码发送至 kook 登录
+// qq 接口由 kook stdio 频道控制
+// 实现 kook 图片转发至 qq
+
 var appName string = "QQ Hime"
 
 func buildUpdateLog() string {
