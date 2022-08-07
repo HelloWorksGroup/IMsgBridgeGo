@@ -46,7 +46,7 @@ func markdownHandler(ctx *khl.KmarkdownMessageContext) {
 
 func imageHandler(ctx *khl.ImageMessageContext) {
 	fmt.Println("[KOOK Image]:", ctx.Extra.Author.Nickname, ctx.Extra.Attachments.URL)
-	if rand.Intn(100) <= 10 {
+	if rand.Intn(100) <= 200 {
 		qqGetKookMarkdown(ctx.Extra.Author.Nickname + ":\n[图片未通过QQ审查]\n请访问 " + kookUrl + " 查看")
 	} else {
 		qqGetKookImage(ctx.Extra.Author.Nickname, ctx.Extra.Attachments.URL)

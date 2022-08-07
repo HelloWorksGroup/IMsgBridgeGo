@@ -74,7 +74,6 @@ func (a *rt) MiraiGoModule() bot.ModuleInfo {
 }
 
 func (a *rt) Init() {
-
 }
 
 func (a *rt) PostInit() {
