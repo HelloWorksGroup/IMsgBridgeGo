@@ -35,9 +35,9 @@ func SetGroupID(n int64) {
 	validGroupId = n
 }
 
-var msgRouteQQ2KOOK func(name string, msg []QQMsg)
+var msgRouteQQ2KOOK func(id int64, name string, msg []QQMsg)
 
-func OnMsg(handler func(name string, msg []QQMsg)) {
+func OnMsg(handler func(id int64, name string, msg []QQMsg)) {
 	msgRouteQQ2KOOK = handler
 }
 
@@ -102,7 +102,7 @@ func (a *rt) Serve(b *bot.Bot) {
 		} else {
 			// DONE: 转发
 			// fmt.Println("msgRouteQQ2KOOK", msg.Sender.Nickname, msg.ToString())
-			go msgRouteQQ2KOOK(msg.Sender.Nickname, qqGroupMsgParse(msg))
+			go msgRouteQQ2KOOK(msg.Sender.Uin, msg.Sender.Nickname, qqGroupMsgParse(msg))
 		}
 	})
 }

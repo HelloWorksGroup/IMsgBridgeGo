@@ -41,11 +41,15 @@ func stdinHandler(ctx *khl.KmarkdownMessageContext) {
 }
 
 func markdownHandler(ctx *khl.KmarkdownMessageContext) {
+	// TODO: 待优化垃圾代码
+	lastSpeakerId = 0
 	fmt.Println("[KOOK Markdown]:", ctx.Extra.Author.Nickname, ctx.Common.Content)
 	qqGetKookMarkdown(ctx.Extra.Author.Nickname + " from KOOK:\n" + ctx.Common.Content)
 }
 
 func imageHandler(ctx *khl.ImageMessageContext) {
+	// TODO: 待优化垃圾代码
+	lastSpeakerId = 0
 	fmt.Println("[KOOK Image]:", ctx.Extra.Author.Nickname, ctx.Extra.Attachments.URL)
 	if rand.Intn(100) <= 200 {
 		var title string
