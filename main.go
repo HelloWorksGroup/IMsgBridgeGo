@@ -19,6 +19,8 @@ import (
 	"github.com/lonelyevil/khl/log_adapter/plog"
 	"github.com/phuslu/log"
 	"github.com/spf13/viper"
+
+	"github.com/jinzhu/copier"
 )
 
 // TODO:
@@ -30,13 +32,12 @@ var appName string = "QQ Hime"
 
 func buildUpdateLog() string {
 	updateLog := ""
-	updateLog += "1. 因分享图片卡片功能无效，暂时关闭\n"
-	updateLog += "2. 恢复更新信息发布功能\n"
+	updateLog += "1. 相同用户短时间连续发言自动合并\n"
 	updateLog += "\n\nHelloWorks-QQ Hime@[GitHub](https://github.com/HelloWorksGroup/KOOK2QQ-bot)"
 	return updateLog
 }
 
-var buildVersion string = appName + " 0005"
+var buildVersion string = appName + " 0006"
 
 // kook邀请链接
 var kookUrl string
@@ -61,13 +62,31 @@ var botID string
 
 var localSession *khl.Session
 
-// TODO: 相同用户短时间连续发言自动合并
-func MsgRouteQQ2KOOK(name string, qqmsg []qq.QQMsg) {
-	// fmt.Println("MsgRouteQQ2KOOK", kookChannel, content)
-	card := kcard.KHLCard{}
-	card.Init()
-	card.Card.Theme = "success"
-	card.AddModule_markdown("**`" + name + "`** from QQ:\n---")
+// DONE: 相同用户短时间连续发言自动合并
+
+// TODO: 待优化垃圾代码
+var lastSpeakerId int64
+var lastSpeakTime int64
+var lastMsgId string
+var lastCard kcard.KHLCard
+var lastCardStack int = 0
+
+func MsgRouteQQ2KOOK(id int64, name string, qqmsg []qq.QQMsg) {
+	var card kcard.KHLCard
+	// 是否合并消息
+	var merge bool = false
+	if id == lastSpeakerId && time.Now().Unix()-lastSpeakTime < 300 && lastCardStack < 10 {
+		lastCardStack += 1
+		card = lastCard
+		merge = true
+	} else {
+		lastCardStack = 0
+		card = kcard.KHLCard{}
+		card.Init()
+		card.Card.Theme = "success"
+		card.AddModule_markdown("**`" + name + "`** from QQ:\n---")
+	}
+
 	for _, v := range qqmsg {
 		switch v.Type {
 		case 0:
@@ -76,10 +95,29 @@ func MsgRouteQQ2KOOK(name string, qqmsg []qq.QQMsg) {
 			card.AddModule_image(v.Content)
 		}
 	}
-	sendKCard(kookChannel, card.String())
+	if !merge {
+		resp, _ := sendKCard(kookChannel, card.String())
+		lastMsgId = resp.MsgID
+	} else {
+		updateKMsg(lastMsgId, card.String())
+	}
+
+	lastSpeakTime = time.Now().Unix()
+	lastSpeakerId = id
+	copier.Copy(&lastCard, &card)
+}
+
+func updateKMsg(msgId string, content string) error {
+	return localSession.MessageUpdate((&khl.MessageUpdate{
+		MessageUpdateBase: khl.MessageUpdateBase{
+			MsgID:   msgId,
+			Content: content,
+		},
+	}))
 }
 
 func sendKCard(target string, content string) (resp *khl.MessageResp, err error) {
+
 	return localSession.MessageCreate((&khl.MessageCreate{
 		MessageCreateBase: khl.MessageCreateBase{
 			Type:     khl.MessageTypeCard,

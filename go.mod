@@ -4,6 +4,7 @@ go 1.18
 
 require (
 	github.com/Nigh/MiraiGo-Template-Mod v0.0.0-20220804125811-8dc160f3287f
+	github.com/jinzhu/copier v0.3.5
 	github.com/jpillora/overseer v1.1.6
 	github.com/lonelyevil/khl v0.0.27
 	github.com/lonelyevil/khl/log_adapter/plog v0.0.27
