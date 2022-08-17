@@ -32,12 +32,12 @@ var appName string = "QQ Hime"
 
 func buildUpdateLog() string {
 	updateLog := ""
-	updateLog += "1. 相同用户短时间连续发言自动合并\n"
+	updateLog += "1. 捕获未识别消息类型\n"
 	updateLog += "\n\nHelloWorks-QQ Hime@[GitHub](https://github.com/HelloWorksGroup/KOOK2QQ-bot)"
 	return updateLog
 }
 
-var buildVersion string = appName + " 0006"
+var buildVersion string = appName + " 0007"
 
 // kook邀请链接
 var kookUrl string
