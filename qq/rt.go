@@ -131,6 +131,8 @@ func qqGroupMsgParse(msg *message.GroupMessage) (qqmsg []QQMsg) {
 			qqmsg = append(qqmsg, QQMsg{0, "[红包:" + e.Title + "]"})
 		case *message.ReplyElement:
 			qqmsg = append(qqmsg, QQMsg{0, "[回复:" + strconv.FormatInt(int64(e.ReplySeq), 10) + "]"})
+		default:
+			qqmsg = append(qqmsg, QQMsg{0, "[未识别的消息类型]"})
 		}
 	}
 	return
