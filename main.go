@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"path"
 	"strconv"
 	"time"
 
@@ -13,6 +14,7 @@ import (
 
 	qq "local/rt"
 
+	"github.com/Mrs4s/MiraiGo/message"
 	"github.com/jpillora/overseer"
 	"github.com/jpillora/overseer/fetcher"
 	"github.com/lonelyevil/khl"
@@ -32,25 +34,21 @@ var appName string = "QQ Hime"
 
 func buildUpdateLog() string {
 	updateLog := ""
-	updateLog += "1. 捕获未识别消息类型\n"
+	updateLog += "1. 实现多组KOOK频道与QQ群的对应转发\n"
 	updateLog += "\n\nHelloWorks-QQ Hime@[GitHub](https://github.com/HelloWorksGroup/KOOK2QQ-bot)"
 	return updateLog
 }
 
-var buildVersion string = appName + " 0007"
-
-// kook邀请链接
-var kookUrl string
-
-// kook频道
-var kookChannel string
+var buildVersion string = appName + " 0017"
 
 // stdout频道
 var stdoutChannel string
 
-// QQ群号
-var qqGroup string
-var qqGroupCode int64
+// 转发map
+var routeMap map[string]string
+
+// 邀请map
+var kookInviteUrl map[string]string
 
 type handlerRule struct {
 	matcher string
@@ -61,51 +59,6 @@ var masterID string
 var botID string
 
 var localSession *khl.Session
-
-// DONE: 相同用户短时间连续发言自动合并
-
-// TODO: 待优化垃圾代码
-var lastSpeakerId int64
-var lastSpeakTime int64
-var lastMsgId string
-var lastCard kcard.KHLCard
-var lastCardStack int = 0
-
-func MsgRouteQQ2KOOK(id int64, name string, qqmsg []qq.QQMsg) {
-	var card kcard.KHLCard
-	// 是否合并消息
-	var merge bool = false
-	if id == lastSpeakerId && time.Now().Unix()-lastSpeakTime < 300 && lastCardStack < 10 {
-		lastCardStack += 1
-		card = lastCard
-		merge = true
-	} else {
-		lastCardStack = 0
-		card = kcard.KHLCard{}
-		card.Init()
-		card.Card.Theme = "success"
-		card.AddModule_markdown("**`" + name + "`** from QQ:\n---")
-	}
-
-	for _, v := range qqmsg {
-		switch v.Type {
-		case 0:
-			card.AddModule_markdown(v.Content)
-		case 1:
-			card.AddModule_image(v.Content)
-		}
-	}
-	if !merge {
-		resp, _ := sendKCard(kookChannel, card.String())
-		lastMsgId = resp.MsgID
-	} else {
-		updateKMsg(lastMsgId, card.String())
-	}
-
-	lastSpeakTime = time.Now().Unix()
-	lastSpeakerId = id
-	copier.Copy(&lastCard, &card)
-}
 
 func updateKMsg(msgId string, content string) error {
 	return localSession.MessageUpdate((&khl.MessageUpdate{
@@ -160,13 +113,38 @@ func kookLog(markdown string) {
 
 var token string
 
+func routeMapSetup() {
+	routeMap = make(map[string]string, 0)
+	s := viper.Get("kook2qq").(map[string]any)
+	for k, v := range s {
+		vs := v.(string)
+		if k != v {
+			if _, ok := routeMap[k]; !ok {
+				routeMap[k] = vs
+			}
+			if _, ok := routeMap[vs]; !ok {
+				routeMap[vs] = k
+			}
+		}
+	}
+}
+func kookInviteUrlSetup() {
+	kookInviteUrl = make(map[string]string, 0)
+	s := viper.Get("kookinvite").(map[string]any)
+	for k, v := range s {
+		vs := v.(string)
+		if _, ok := kookInviteUrl[k]; !ok {
+			kookInviteUrl[k] = vs
+		}
+	}
+}
+func kookMergeMapSetup() {
+	kookMergeMap = make(map[string]KookLastMsg, 0)
+}
 func getConfig() {
 	rand.Seed(time.Now().UnixNano())
 	viper.SetDefault("token", "0")
-	viper.SetDefault("kookChannel", "0")
-	viper.SetDefault("koolUrl", "")
 	viper.SetDefault("stdoutChannel", "0")
-	viper.SetDefault("qqGroup", "0")
 	viper.SetDefault("masterID", "")
 	viper.SetDefault("oldversion", "0.0.0")
 	viper.SetConfigType("json")
@@ -177,18 +155,13 @@ func getConfig() {
 		panic(fmt.Errorf("fatal error config file: %s", err))
 	}
 	masterID = viper.Get("masterID").(string)
-	kookChannel = viper.Get("kookChannel").(string)
-	fmt.Println("kookChannel=" + kookChannel)
-	kookUrl = viper.Get("koolUrl").(string)
-	fmt.Println("koolUrl=" + kookUrl)
 	stdoutChannel = viper.Get("stdoutChannel").(string)
 	fmt.Println("stdoutChannel=" + stdoutChannel)
-	qqGroup = viper.Get("qqGroup").(string)
-	qqGroupCode, _ = strconv.ParseInt(qqGroup, 10, 64)
-	fmt.Println("qqGroupCode=", qqGroupCode)
-
 	token = viper.Get("token").(string)
 	fmt.Println("token=" + token)
+	routeMapSetup()
+	kookInviteUrlSetup()
+	kookMergeMapSetup()
 }
 
 func prog(state overseer.State) {
@@ -206,7 +179,6 @@ func prog(state overseer.State) {
 	botID = me.ID
 	s.AddHandler(markdownMessageHandler)
 	s.AddHandler(imageMessageHandler)
-	s.AddHandler(fileMessageHandler)
 	s.Open()
 	localSession = s
 
@@ -258,6 +230,107 @@ func main() {
 	})
 }
 
+func kookMsgToQQGroup(ctx *khl.KmarkdownMessageContext, groupId string) {
+	if _, ok := kookMergeMap[ctx.Common.TargetID]; ok {
+		kookMergeMap[ctx.Common.TargetID] = KookLastMsg{}
+	}
+	channel := ctx.Common.TargetID
+	name := ctx.Extra.Author.Nickname
+	content := ctx.Common.Content
+
+	fmt.Println("[KOOK Markdown]:", channel, name, content)
+	id, _ := strconv.ParseInt(groupId, 10, 64)
+	qq.SendToQQGroup(name+" 转发自 KOOK:\n"+content, id)
+}
+
+func imageHandler(ctx *khl.ImageMessageContext) {
+	if _, ok := kookMergeMap[ctx.Common.TargetID]; ok {
+		kookMergeMap[ctx.Common.TargetID] = KookLastMsg{}
+	}
+	fmt.Println("[KOOK Image]:", ctx.Extra.Author.Nickname, ctx.Extra.Attachments.URL)
+	var title string
+	for k, v := range routeMap {
+		if ctx.Common.TargetID == k {
+			gid, _ := strconv.ParseInt(v, 10, 64)
+			// TODO: more cases
+			if rand.Intn(100) <= 50 {
+				title = "[图片未通过QQ审查]"
+			} else {
+				title = "[当前版本QQ不支持的消息]"
+			}
+			var inviteStr string = ""
+			if _, ok := kookInviteUrl[k]; ok {
+				inviteStr = "\n邀请链接：" + kookInviteUrl[k]
+			}
+			qq.SendToQQGroup(ctx.Extra.Author.Nickname+" 转发自 KOOK:\n"+title+"\n"+path.Base(ctx.Extra.Attachments.URL)+"\n请使用KOOK查看。"+inviteStr, gid)
+		}
+	}
+}
+
+func qqMsgHandler(msg *message.GroupMessage) {
+	for k, v := range routeMap {
+		gid := strconv.FormatInt(msg.GroupCode, 10)
+		if gid == k {
+			qqMsgToKook(msg.Sender.Uin, v, msg.Sender.Nickname, qq.GroupMsgParse(msg))
+		}
+	}
+}
+
+type KookLastMsg struct {
+	lastCard      kcard.KHLCard
+	lastUid       int64
+	lastMsgTime   int64
+	lastMsgId     string
+	lastCardStack int
+}
+
+var kookMergeMap map[string]KookLastMsg
+
+// DONE: 相同用户短时间连续发言自动合并
+func qqMsgToKook(uid int64, channel string, name string, msgs []qq.QQMsg) {
+	var card kcard.KHLCard
+	// 是否合并消息
+	var merge bool = false
+	var entry KookLastMsg
+	if kmm, ok := kookMergeMap[channel]; ok {
+		entry = kmm
+		if uid == kmm.lastUid && time.Now().Unix()-kmm.lastMsgTime < 300 && kmm.lastCardStack < 10 {
+			entry.lastCardStack += 1
+			card = entry.lastCard
+			merge = true
+		}
+	}
+	if !merge {
+		if _, ok := kookMergeMap[channel]; !ok {
+			kookMergeMap[channel] = KookLastMsg{}
+			entry = kookMergeMap[channel]
+		}
+		card = kcard.KHLCard{}
+		card.Init()
+		card.Card.Theme = "success"
+		card.AddModule_markdown("**`" + name + "`** 转发自 QQ:\n---")
+	}
+	for _, v := range msgs {
+		switch v.Type {
+		case 0:
+			card.AddModule_markdown(v.Content)
+		case 1:
+			card.AddModule_image(v.Content)
+		}
+	}
+	if !merge {
+		resp, _ := sendKCard(channel, card.String())
+		entry.lastMsgId = resp.MsgID
+	} else {
+		updateKMsg(entry.lastMsgId, card.String())
+	}
+
+	entry.lastMsgTime = time.Now().Unix()
+	entry.lastUid = uid
+	copier.Copy(&entry.lastCard, &card)
+	kookMergeMap[channel] = entry
+}
+
 func markdownMessageHandler(ctx *khl.KmarkdownMessageContext) {
 	if ctx.Extra.Author.Bot {
 		return
@@ -265,23 +338,20 @@ func markdownMessageHandler(ctx *khl.KmarkdownMessageContext) {
 	switch ctx.Common.TargetID {
 	case botID:
 		directMessageHandler(ctx.Common)
-	case kookChannel:
-		markdownHandler(ctx)
 	case stdoutChannel:
 		stdinHandler(ctx)
+	default:
+		for k, v := range routeMap {
+			if ctx.Common.TargetID == k {
+				kookMsgToQQGroup(ctx, v)
+			}
+		}
 	}
 }
 
 func imageMessageHandler(ctx *khl.ImageMessageContext) {
-	if ctx.Extra.Author.Bot || ctx.Common.TargetID != kookChannel {
+	if ctx.Extra.Author.Bot {
 		return
 	}
 	imageHandler(ctx)
-}
-
-func fileMessageHandler(ctx *khl.FileMessageContext) {
-	if ctx.Extra.Author.Bot || ctx.Common.TargetID != kookChannel {
-		return
-	}
-	fileHandler(ctx)
 }

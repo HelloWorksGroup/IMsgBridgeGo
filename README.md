@@ -26,19 +26,25 @@ bot:
 
 ```json
 {
-  "kookchannel": "1000000",
+ "kook2qq": {
+  "1111111112375343":"222222738",
+  "1111111111521062":"222222174"
+ },
+ "kookinvite": {
+  "1111111112375343": "https://kook.top/123456",
+  "1111111111521062" : "https://kook.top/654321"
+ },
   "masterid": "30000000",
-  "qqgroup": "4000000",
   "stdoutchannel": "2000000",
   "token": "your bots login token"
 }
 ```
 
-`kookchannel` 为 `KOOK` 上收发 `QQ` 消息的频道。
+`kook2qq` 为 `KOOK->QQ` 的转发数组。可以实现多组 `KOOK` 频道与 `QQ` 群之间的映射。
+
+`kookinvite` 为 `KOOK` 的对应频道的邀请链接。当无法成功转发消息至 `QQ` 时，将会建议至 `KOOK` 查看消息。
 
 `stdoutchannel` 为 `KOOK` 上机器人输出调试信息的频道，不使用可以留空。
-
-`qqgroup` 为 `QQ` 上收发 `KOOK` 消息的群号。
 
 `masterid` 为你的 `KOOK` ID
 

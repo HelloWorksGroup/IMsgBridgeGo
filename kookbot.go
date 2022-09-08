@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"math/rand"
-	"path"
 	"regexp"
 	"strconv"
 	"sync"
@@ -25,7 +24,7 @@ func stdinHandler(ctx *khl.KmarkdownMessageContext) {
 	ctxCommon := ctx.Common
 
 	reply := func(words string) string {
-		resp, _ := sendMarkdown(kookChannel, words)
+		resp, _ := sendMarkdown(stdoutChannel, words)
 		return resp.MsgID
 	}
 
@@ -38,35 +37,6 @@ func stdinHandler(ctx *khl.KmarkdownMessageContext) {
 			return
 		}
 	}
-}
-
-func markdownHandler(ctx *khl.KmarkdownMessageContext) {
-	// TODO: 待优化垃圾代码
-	lastSpeakerId = 0
-	fmt.Println("[KOOK Markdown]:", ctx.Extra.Author.Nickname, ctx.Common.Content)
-	qqGetKookMarkdown(ctx.Extra.Author.Nickname + " from KOOK:\n" + ctx.Common.Content)
-}
-
-func imageHandler(ctx *khl.ImageMessageContext) {
-	// TODO: 待优化垃圾代码
-	lastSpeakerId = 0
-	fmt.Println("[KOOK Image]:", ctx.Extra.Author.Nickname, ctx.Extra.Attachments.URL)
-	if rand.Intn(100) <= 200 {
-		var title string
-		if rand.Intn(100) <= 50 {
-			title = "[图片未通过审查]"
-		} else {
-			title = "[当前版本QQ不支持的消息]"
-		}
-		qqGetKookMarkdown(ctx.Extra.Author.Nickname + ":" + title + "\n" + path.Base(ctx.Extra.Attachments.URL) + "\n请访问 " + kookUrl + " 查看")
-	} else {
-		qqGetKookImage(ctx.Extra.Author.Nickname, ctx.Extra.Attachments.URL)
-	}
-}
-
-func fileHandler(ctx *khl.FileMessageContext) {
-	fmt.Println("[KOOK File]:", ctx.Extra.Author.Nickname, ctx.Extra.Attachments.URL)
-	qqGetKookMarkdown(ctx.Extra.Author.Nickname + ":\n[当前QQ版本不支持的消息]\n请访问 " + kookUrl + " 查看")
 }
 
 func portMarkdown(ctxCommon *khl.EventDataGeneral, s []string, f func(string) string) {

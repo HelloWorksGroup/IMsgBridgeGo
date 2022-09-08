@@ -9,15 +9,11 @@ import (
 
 func qqbotInit() {
 	// utils.WriteLogToFS(utils.LogInfoLevel, utils.LogWithStack)
-	qq.SetGroupID(qqGroupCode)
-	qq.OnMsg(MsgRouteQQ2KOOK)
+	qq.OnMsg(qqMsgHandler)
 }
 
 func qqGetKookMarkdown(content string) {
 	qq.RouteKOOK2QQText(content)
-}
-func qqGetKookImage(displayName string, imageUrl string) {
-	qq.RouteKOOK2QQImage(displayName, imageUrl, kookUrl)
 }
 
 func qqbotStart() {
