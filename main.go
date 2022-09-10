@@ -299,9 +299,15 @@ func qqMsgToKook(uid int64, channel string, name string, msgs []qq.QQMsg) {
 	// 是否合并消息
 	var merge bool = false
 	var entry KookLastMsg
+	fmt.Println("[MergeRoutine]:")
+	fmt.Println("\tchannel=", channel)
 	if kmm, ok := kookMergeMap[channel]; ok {
 		entry = kmm
-		if uid == kmm.lastUid && time.Now().Unix()-kmm.lastMsgTime < 300 && kmm.lastCardStack < 10 {
+		fmt.Println("\tuid=", uid)
+		fmt.Println("\tlastUid=", entry.lastUid)
+		fmt.Println("\tlastMsgTimeDiff=", time.Now().Unix()-entry.lastMsgTime)
+		fmt.Println("\tlastCardStack=", entry.lastCardStack)
+		if uid == entry.lastUid && time.Now().Unix()-entry.lastMsgTime < 300 && entry.lastCardStack < 10 {
 			entry.lastCardStack += 1
 			card = entry.lastCard
 			merge = true
