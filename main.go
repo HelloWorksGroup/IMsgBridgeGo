@@ -253,10 +253,17 @@ func imageHandler(ctx *khl.ImageMessageContext) {
 		if ctx.Common.TargetID == k {
 			gid, _ := strconv.ParseInt(v, 10, 64)
 			// TODO: more cases
-			if rand.Intn(100) <= 50 {
+			casen := rand.Intn(100)
+			if casen <= 20 {
 				title = "[图片未通过QQ审查]"
-			} else {
+			} else if casen <= 40 {
 				title = "[当前版本QQ不支持的消息]"
+			} else if casen <= 60 {
+				title = "[图片转发至QQ失败]"
+			} else if casen <= 80 {
+				title = "[未能成功转发图片]"
+			} else if casen <= 100 {
+				title = "[请进入KOOK端查看图片]"
 			}
 			var inviteStr string = ""
 			if _, ok := kookInviteUrl[k]; ok {
