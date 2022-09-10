@@ -278,7 +278,11 @@ func qqMsgHandler(msg *message.GroupMessage) {
 	for k, v := range routeMap {
 		gid := strconv.FormatInt(msg.GroupCode, 10)
 		if gid == k {
-			qqMsgToKook(msg.Sender.Uin, v, msg.Sender.Nickname, qq.GroupMsgParse(msg))
+			name := msg.Sender.CardName
+			if name == "" {
+				name = msg.Sender.Nickname
+			}
+			qqMsgToKook(msg.Sender.Uin, v, name, qq.GroupMsgParse(msg))
 		}
 	}
 }
