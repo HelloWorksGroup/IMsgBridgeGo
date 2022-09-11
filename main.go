@@ -34,12 +34,12 @@ var appName string = "QQ Hime"
 
 func buildUpdateLog() string {
 	updateLog := ""
-	updateLog += "1. 实现多组KOOK频道与QQ群的对应转发\n"
+	updateLog += "1. 为SendKCard失败添加报错\n"
 	updateLog += "\n\nHelloWorks-QQ Hime@[GitHub](https://github.com/HelloWorksGroup/KOOK2QQ-bot)"
 	return updateLog
 }
 
-var buildVersion string = appName + " 0017"
+var buildVersion string = appName + " 0020"
 
 // stdout频道
 var stdoutChannel string
@@ -336,8 +336,13 @@ func qqMsgToKook(uid int64, channel string, name string, msgs []qq.QQMsg) {
 		}
 	}
 	if !merge {
-		resp, _ := sendKCard(channel, card.String())
-		entry.lastMsgId = resp.MsgID
+		resp, err := sendKCard(channel, card.String())
+		if err != nil {
+			sendMarkdown(channel, "消息转发失败")
+			entry.lastMsgId = ""
+		} else {
+			entry.lastMsgId = resp.MsgID
+		}
 	} else {
 		updateKMsg(entry.lastMsgId, card.String())
 	}
