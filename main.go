@@ -338,6 +338,8 @@ func qqMsgToKook(uid int64, channel string, name string, msgs []qq.QQMsg) {
 	if !merge {
 		resp, err := sendKCard(channel, card.String())
 		if err != nil {
+			fmt.Println(err.Error())
+			fmt.Println("消息转发失败", channel, card.String())
 			sendMarkdown(channel, "消息转发失败")
 			entry.lastMsgId = ""
 		} else {
