@@ -6,6 +6,7 @@ import (
 	"os/signal"
 	"path"
 	"strconv"
+	"strings"
 	"time"
 
 	"math/rand"
@@ -34,12 +35,12 @@ var appName string = "QQ Hime"
 
 func buildUpdateLog() string {
 	updateLog := ""
-	updateLog += "1. 为SendKCard失败添加报错\n"
+	updateLog += "1. 增加对QQ端Unicode转义昵称的解析\n"
 	updateLog += "\n\nHelloWorks-QQ Hime@[GitHub](https://github.com/HelloWorksGroup/KOOK2QQ-bot)"
 	return updateLog
 }
 
-var buildVersion string = appName + " 0020"
+var buildVersion string = appName + " 0021"
 
 // stdout频道
 var stdoutChannel string
@@ -297,6 +298,14 @@ type KookLastMsg struct {
 
 var kookMergeMap map[string]KookLastMsg
 
+func escapeToUnicode(raw []byte) ([]byte, error) {
+	str, err := strconv.Unquote(strings.Replace(strconv.Quote(string(raw)), `\\u`, `\u`, -1))
+	if err != nil {
+		return nil, err
+	}
+	return []byte(str), nil
+}
+
 // DONE: 相同用户短时间连续发言自动合并
 func qqMsgToKook(uid int64, channel string, name string, msgs []qq.QQMsg) {
 	var card kcard.KHLCard
@@ -325,7 +334,11 @@ func qqMsgToKook(uid int64, channel string, name string, msgs []qq.QQMsg) {
 		card = kcard.KHLCard{}
 		card.Init()
 		card.Card.Theme = "success"
-		card.AddModule_markdown("**`" + name + "`** 转发自 QQ:\n---")
+		unicodeName, err := escapeToUnicode([]byte(name))
+		if err != nil {
+			unicodeName = []byte("某不愿透露姓名人士")
+		}
+		card.AddModule_markdown("**`" + string(unicodeName) + "`** 转发自 QQ:\n---")
 	}
 	for _, v := range msgs {
 		switch v.Type {
