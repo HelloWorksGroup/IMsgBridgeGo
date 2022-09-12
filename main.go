@@ -36,12 +36,12 @@ var appName string = "QQ Hime"
 
 func buildUpdateLog() string {
 	updateLog := ""
-	updateLog += "1. 增加对QQ端Unicode转义昵称的解析\n"
+	updateLog += "1. 从QQ端昵称移除不可打印字符\n"
 	updateLog += "\n\nHelloWorks-QQ Hime@[GitHub](https://github.com/HelloWorksGroup/KOOK2QQ-bot)"
 	return updateLog
 }
 
-var buildVersion string = appName + " 0021"
+var buildVersion string = appName + " 0022"
 
 // stdout频道
 var stdoutChannel string
