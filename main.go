@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode"
 
 	"math/rand"
 
@@ -298,12 +299,18 @@ type KookLastMsg struct {
 
 var kookMergeMap map[string]KookLastMsg
 
-func escapeToUnicode(raw []byte) ([]byte, error) {
+func escapeToCleanUnicode(raw string) (string, error) {
 	str, err := strconv.Unquote(strings.Replace(strconv.Quote(string(raw)), `\\u`, `\u`, -1))
 	if err != nil {
-		return nil, err
+		return "", err
 	}
-	return []byte(str), nil
+	clean := strings.Map(func(r rune) rune {
+		if unicode.IsGraphic(r) {
+			return r
+		}
+		return -1
+	}, str)
+	return clean, nil
 }
 
 // DONE: 相同用户短时间连续发言自动合并
@@ -334,11 +341,11 @@ func qqMsgToKook(uid int64, channel string, name string, msgs []qq.QQMsg) {
 		card = kcard.KHLCard{}
 		card.Init()
 		card.Card.Theme = "success"
-		unicodeName, err := escapeToUnicode([]byte(name))
+		cleanName, err := escapeToCleanUnicode(name)
 		if err != nil {
-			unicodeName = []byte("某不愿透露姓名人士")
+			cleanName = "某姓名无法打印人士"
 		}
-		card.AddModule_markdown("**`" + string(unicodeName) + "`** 转发自 QQ:\n---")
+		card.AddModule_markdown("**`" + cleanName + "`** 转发自 QQ:\n---")
 	}
 	for _, v := range msgs {
 		switch v.Type {
