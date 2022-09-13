@@ -295,12 +295,15 @@ func imageHandler(ctx *kook.ImageMessageContext) {
 	}
 	fmt.Println("[KOOK Image]:", ctx.Extra.Author.Nickname, ctx.Extra.Attachments.URL)
 	var title string
+	var showUrl bool = false
 	for k, v := range routeMap {
 		if ctx.Common.TargetID == k {
 			gid, _ := strconv.ParseInt(v, 10, 64)
-			// TODO: more cases
 			casen := rand.Intn(100)
-			if casen <= 20 {
+			if casen <= 10 {
+				title = "[访问KOOK图床查看图片]"
+				showUrl = true
+			} else if casen <= 20 {
 				title = "[图片未通过QQ审查]"
 			} else if casen <= 40 {
 				title = "[当前版本QQ不支持的消息]"
@@ -315,7 +318,11 @@ func imageHandler(ctx *kook.ImageMessageContext) {
 			if _, ok := kookInviteUrl[k]; ok {
 				inviteStr = "\n邀请链接：" + kookInviteUrl[k]
 			}
-			qq.SendToQQGroup(ctx.Extra.Author.Nickname+" 转发自 KOOK:\n"+title+"\n"+path.Base(ctx.Extra.Attachments.URL)+"\n请使用KOOK查看。"+inviteStr, gid)
+			if showUrl {
+				qq.SendToQQGroup(ctx.Extra.Author.Nickname+" 转发自 KOOK:\n"+title+"\n"+ctx.Extra.Attachments.URL, gid)
+			} else {
+				qq.SendToQQGroup(ctx.Extra.Author.Nickname+" 转发自 KOOK:\n"+title+"\n"+path.Base(ctx.Extra.Attachments.URL)+"\n请使用KOOK查看。"+inviteStr, gid)
+			}
 		}
 	}
 }
