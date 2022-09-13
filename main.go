@@ -238,19 +238,31 @@ func main() {
 
 // TODO: 更多 的kmarkdown tag 处理
 // 将(met)bot id(met)\s+ 变为 @ name
-func kookMet2At(content string, guildId string) string {
-	replaceMap := make(map[string]string, 0)
+func kookMet2At(content string, channelId string) string {
+	replaceMap := make(map[string]string)
+	var c *kook.Channel = nil
 	r := regexp.MustCompile(`\(met\)(\d+)\(met\)`)
-	matchs := r.FindStringSubmatch(content)
-	if len(matchs) > 0 {
-		for _, id := range matchs {
-			u, _ := localSession.UserView(id, kook.UserViewWithGuildID(guildId))
-			replaceMap["(met)"+id+"(met)"] = "@" + u.Nickname
-		}
-		for k, v := range replaceMap {
-			content = strings.ReplaceAll(content, k, v)
+	for {
+		matchs := r.FindStringSubmatch(content)
+		if len(matchs) > 0 {
+			if c == nil {
+				c, _ = localSession.ChannelView(channelId)
+			}
+			if _, ok := replaceMap["(met)"+matchs[1]+"(met)"]; !ok {
+				u, err := localSession.UserView(matchs[1], kook.UserViewWithGuildID(c.GuildID))
+				if err == nil {
+					content = strings.ReplaceAll(content, "(met)"+matchs[1]+"(met)", "@"+u.Nickname)
+					replaceMap["(met)"+matchs[1]+"(met)"] = "@" + u.Nickname
+				} else {
+					content = strings.ReplaceAll(content, "(met)"+matchs[1]+"(met)", "@某人")
+					replaceMap["(met)"+matchs[1]+"(met)"] = "@某人"
+				}
+			}
+		} else {
+			break
 		}
 	}
+
 	return content
 }
 
