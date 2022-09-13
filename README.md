@@ -22,6 +22,8 @@ bot:
 
 成功登陆后将会在本地保存`session`，下次登录时会优先使用`session`登录。
 
+所以当首次由于QQ风控无法在服务器上登录时，可以先在本地成功登陆后，将`session`与`device`复制到服务器端使用。
+
 ### 1. 配置 config.json
 
 ```json
@@ -40,13 +42,9 @@ bot:
 }
 ```
 
-`kook2qq` 为 `KOOK->QQ` 的转发数组。可以实现多组 `KOOK` 频道与 `QQ` 群之间的映射。
-
-`kookinvite` 为 `KOOK` 的对应频道的邀请链接。当无法成功转发消息至 `QQ` 时，将会建议至 `KOOK` 查看消息。
-
-`stdoutchannel` 为 `KOOK` 上机器人输出调试信息的频道，不使用可以留空。
-
-`masterid` 为你的 `KOOK` ID
-
-`token` 为你的机器人的登录 `token`
+- `kook2qq` 为 `KOOK->QQ` 的转发数组。可以实现多组 `KOOK` 频道与 `QQ` 群之间的映射。其中key为KOOK**频道**的ID，value为QQ群号。
+- `kookinvite` 为 `KOOK` 的对应频道的邀请链接。当无法成功转发消息至 `QQ` 时，将会建议至 `KOOK` 查看消息。
+- `stdoutchannel` 为 `KOOK` 上机器人输出调试信息的频道，不使用可以留空。
+- `masterid` 为你的 `KOOK` ID
+- `token` 为你的机器人的登录 `token`
 
