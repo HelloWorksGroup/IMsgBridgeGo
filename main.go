@@ -357,11 +357,13 @@ func qqMsgToKook(uid int64, channel string, name string, msgs []qq.QQMsg) {
 		}
 	}
 	for _, v := range msgs {
-		fmt.Print(strconv.Itoa(v.Type) + " ")
+		fmt.Print(strconv.Itoa(v.Type) + "[" + strconv.Itoa(len(v.Content)) + "] ")
 		switch v.Type {
 		case 0:
 			cachedStrRelease()
-			card.AddModule_markdown(v.Content)
+			if len(v.Content) > 0 {
+				card.AddModule_markdown(v.Content)
+			}
 		case 1:
 			cachedStrRelease()
 			card.AddModule_image(v.Content)
