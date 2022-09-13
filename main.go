@@ -361,7 +361,8 @@ func qqMsgToKook(uid int64, channel string, name string, msgs []qq.QQMsg) {
 		switch v.Type {
 		case 0:
 			cachedStrRelease()
-			if len(v.Content) > 0 {
+			if len(v.Content) > 0 && v.Content != " " {
+				// 忽略QQ回复消息自带的空白消息(一个0x20字符)
 				card.AddModule_markdown(v.Content)
 			}
 		case 1:
