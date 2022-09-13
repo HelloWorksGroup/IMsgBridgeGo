@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/signal"
 	"path"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -36,12 +37,12 @@ var appName string = "QQ Hime"
 
 func buildUpdateLog() string {
 	updateLog := ""
-	updateLog += "1. 优化QQ回复消息组织\n"
+	updateLog += "1. 增加对KOOK消息中`at tag`与`link tag`的处理\n"
 	updateLog += "\n\nHelloWorks-QQ Hime@[GitHub](https://github.com/HelloWorksGroup/KOOK2QQ-bot)"
 	return updateLog
 }
 
-var buildVersion string = appName + " 0023"
+var buildVersion string = appName + " 0024"
 
 // stdout频道
 var stdoutChannel string
@@ -232,13 +233,44 @@ func main() {
 	})
 }
 
-func kookMsgToQQGroup(ctx *kook.KmarkdownMessageContext, groupId string) {
+// TODO: 支持消息回复
+
+// TODO: 更多 的kmarkdown tag 处理
+// 将(met)bot id(met)\s+ 变为 @ name
+func kookMet2At(content string, guildId string) string {
+	replaceMap := make(map[string]string, 0)
+	r := regexp.MustCompile(`\(met\)(\d+)\(met\)`)
+	matchs := r.FindStringSubmatch(content)
+	if len(matchs) > 0 {
+		for _, id := range matchs {
+			u, _ := localSession.UserView(id, kook.UserViewWithGuildID(guildId))
+			replaceMap["(met)"+id+"(met)"] = "@" + u.Nickname
+		}
+		for k, v := range replaceMap {
+			content = strings.ReplaceAll(content, k, v)
+		}
+	}
+	return content
+}
+
+// 将 [foo](bar) 变为 bar
+func kookLink2Link(content string) string {
+	r := regexp.MustCompile(`\[.+?\]\((.+?)\)`)
+	content = r.ReplaceAllString(content, " $1 ")
+	return content
+}
+
+// 将kook回复标记转换成 qq @ uid
+func kookMsgToQQGroup(ctx *kook.KmarkdownMessageContext, guildId string, groupId string) {
 	if _, ok := kookMergeMap[ctx.Common.TargetID]; ok {
 		kookMergeMap[ctx.Common.TargetID] = KookLastMsg{}
 	}
 	channel := ctx.Common.TargetID
 	name := ctx.Extra.Author.Nickname
 	content := ctx.Common.Content
+
+	content = kookMet2At(content, guildId)
+	content = kookLink2Link(content)
 
 	fmt.Println("[KOOK Markdown]:", channel, name, content)
 	id, _ := strconv.ParseInt(groupId, 10, 64)
@@ -284,7 +316,7 @@ func qqMsgHandler(msg *message.GroupMessage) {
 			if name == "" {
 				name = msg.Sender.Nickname
 			}
-			qqMsgToKook(msg.Sender.Uin, v, name, qq.GroupMsgParse(msg))
+			go qqMsgToKook(msg.Sender.Uin, v, name, qq.GroupMsgParse(msg))
 		}
 	}
 }
@@ -411,7 +443,7 @@ func markdownMessageHandler(ctx *kook.KmarkdownMessageContext) {
 	default:
 		for k, v := range routeMap {
 			if ctx.Common.TargetID == k {
-				kookMsgToQQGroup(ctx, v)
+				go kookMsgToQQGroup(ctx, k, v)
 			}
 		}
 	}
