@@ -19,8 +19,8 @@ import (
 	"github.com/Mrs4s/MiraiGo/message"
 	"github.com/jpillora/overseer"
 	"github.com/jpillora/overseer/fetcher"
-	"github.com/lonelyevil/khl"
-	"github.com/lonelyevil/khl/log_adapter/plog"
+	"github.com/lonelyevil/kook"
+	"github.com/lonelyevil/kook/log_adapter/plog"
 	"github.com/phuslu/log"
 	"github.com/spf13/viper"
 
@@ -54,47 +54,47 @@ var kookInviteUrl map[string]string
 
 type handlerRule struct {
 	matcher string
-	getter  func(ctxCommon *khl.EventDataGeneral, matchs []string, reply func(string) string)
+	getter  func(ctxCommon *kook.EventDataGeneral, matchs []string, reply func(string) string)
 }
 
 var masterID string
 var botID string
 
-var localSession *khl.Session
+var localSession *kook.Session
 
 func updateKMsg(msgId string, content string) error {
-	return localSession.MessageUpdate((&khl.MessageUpdate{
-		MessageUpdateBase: khl.MessageUpdateBase{
+	return localSession.MessageUpdate((&kook.MessageUpdate{
+		MessageUpdateBase: kook.MessageUpdateBase{
 			MsgID:   msgId,
 			Content: content,
 		},
 	}))
 }
 
-func sendKCard(target string, content string) (resp *khl.MessageResp, err error) {
+func sendKCard(target string, content string) (resp *kook.MessageResp, err error) {
 
-	return localSession.MessageCreate((&khl.MessageCreate{
-		MessageCreateBase: khl.MessageCreateBase{
-			Type:     khl.MessageTypeCard,
+	return localSession.MessageCreate((&kook.MessageCreate{
+		MessageCreateBase: kook.MessageCreateBase{
+			Type:     kook.MessageTypeCard,
 			TargetID: target,
 			Content:  content,
 		},
 	}))
 }
-func sendMarkdown(target string, content string) (resp *khl.MessageResp, err error) {
-	return localSession.MessageCreate((&khl.MessageCreate{
-		MessageCreateBase: khl.MessageCreateBase{
-			Type:     khl.MessageTypeKMarkdown,
+func sendMarkdown(target string, content string) (resp *kook.MessageResp, err error) {
+	return localSession.MessageCreate((&kook.MessageCreate{
+		MessageCreateBase: kook.MessageCreateBase{
+			Type:     kook.MessageTypeKMarkdown,
 			TargetID: target,
 			Content:  content,
 		},
 	}))
 }
 
-func sendMarkdownDirect(target string, content string) (mr *khl.MessageResp, err error) {
-	return localSession.DirectMessageCreate(&khl.DirectMessageCreate{
-		MessageCreateBase: khl.MessageCreateBase{
-			Type:     khl.MessageTypeKMarkdown,
+func sendMarkdownDirect(target string, content string) (mr *kook.MessageResp, err error) {
+	return localSession.DirectMessageCreate(&kook.DirectMessageCreate{
+		MessageCreateBase: kook.MessageCreateBase{
+			Type:     kook.MessageTypeKMarkdown,
 			TargetID: target,
 			Content:  content,
 		},
@@ -175,7 +175,7 @@ func prog(state overseer.State) {
 		Writer: &log.ConsoleWriter{},
 	}
 
-	s := khl.New(token, plog.NewLogger(&l))
+	s := kook.New(token, plog.NewLogger(&l))
 	me, _ := s.UserMe()
 	fmt.Println("ID=" + me.ID)
 	botID = me.ID
@@ -232,7 +232,7 @@ func main() {
 	})
 }
 
-func kookMsgToQQGroup(ctx *khl.KmarkdownMessageContext, groupId string) {
+func kookMsgToQQGroup(ctx *kook.KmarkdownMessageContext, groupId string) {
 	if _, ok := kookMergeMap[ctx.Common.TargetID]; ok {
 		kookMergeMap[ctx.Common.TargetID] = KookLastMsg{}
 	}
@@ -245,7 +245,7 @@ func kookMsgToQQGroup(ctx *khl.KmarkdownMessageContext, groupId string) {
 	qq.SendToQQGroup(name+" 转发自 KOOK:\n"+content, id)
 }
 
-func imageHandler(ctx *khl.ImageMessageContext) {
+func imageHandler(ctx *kook.ImageMessageContext) {
 	if _, ok := kookMergeMap[ctx.Common.TargetID]; ok {
 		kookMergeMap[ctx.Common.TargetID] = KookLastMsg{}
 	}
@@ -375,7 +375,7 @@ func qqMsgToKook(uid int64, channel string, name string, msgs []qq.QQMsg) {
 	kookMergeMap[channel] = entry
 }
 
-func markdownMessageHandler(ctx *khl.KmarkdownMessageContext) {
+func markdownMessageHandler(ctx *kook.KmarkdownMessageContext) {
 	if ctx.Extra.Author.Bot {
 		return
 	}
@@ -393,7 +393,7 @@ func markdownMessageHandler(ctx *khl.KmarkdownMessageContext) {
 	}
 }
 
-func imageMessageHandler(ctx *khl.ImageMessageContext) {
+func imageMessageHandler(ctx *kook.ImageMessageContext) {
 	if ctx.Extra.Author.Bot {
 		return
 	}
