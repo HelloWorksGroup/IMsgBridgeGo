@@ -36,12 +36,12 @@ var appName string = "QQ Hime"
 
 func buildUpdateLog() string {
 	updateLog := ""
-	updateLog += "1. 从QQ端昵称移除不可打印字符\n"
+	updateLog += "1. 优化QQ回复消息组织\n"
 	updateLog += "\n\nHelloWorks-QQ Hime@[GitHub](https://github.com/HelloWorksGroup/KOOK2QQ-bot)"
 	return updateLog
 }
 
-var buildVersion string = appName + " 0022"
+var buildVersion string = appName + " 0023"
 
 // stdout频道
 var stdoutChannel string
@@ -347,14 +347,35 @@ func qqMsgToKook(uid int64, channel string, name string, msgs []qq.QQMsg) {
 		}
 		card.AddModule_markdown("**`" + cleanName + "`** 转发自 QQ:\n---")
 	}
-	for _, v := range msgs {
-		switch v.Type {
-		case 0:
-			card.AddModule_markdown(v.Content)
-		case 1:
-			card.AddModule_image(v.Content)
+	fmt.Print("Type Sequence: ")
+	var atCount int = 0
+	var cachedStr string = ""
+	cachedStrRelease := func() {
+		if len(cachedStr) > 0 {
+			card.AddModule_markdown(cachedStr)
+			cachedStr = ""
 		}
 	}
+	for _, v := range msgs {
+		fmt.Print(strconv.Itoa(v.Type) + " ")
+		switch v.Type {
+		case 0:
+			cachedStrRelease()
+			card.AddModule_markdown(v.Content)
+		case 1:
+			cachedStrRelease()
+			card.AddModule_image(v.Content)
+		case 2: // At
+			atCount += 1
+			if atCount == 1 {
+				cachedStr += v.Content
+			}
+		case 3: // Reply
+			cachedStr += v.Content
+		}
+	}
+	cachedStrRelease()
+	fmt.Println("")
 	if !merge {
 		resp, err := sendKCard(channel, card.String())
 		if err != nil {
