@@ -37,12 +37,12 @@ var appName string = "QQ Hime"
 
 func buildUpdateLog() string {
 	updateLog := ""
-	updateLog += "1. 增加对KOOK消息中`at tag`与`link tag`的处理\n"
+	updateLog += "1. 增加对KOOK消息中`at tag`与`link tag`的处理\n2. 合并可合并的QQ消息"
 	updateLog += "\n\nHelloWorks-QQ Hime@[GitHub](https://github.com/HelloWorksGroup/KOOK2QQ-bot)"
 	return updateLog
 }
 
-var buildVersion string = appName + " 0024"
+var buildVersion string = appName + " 0025"
 
 // stdout频道
 var stdoutChannel string
