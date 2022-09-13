@@ -234,6 +234,7 @@ func main() {
 }
 
 // TODO: 支持消息回复
+// TODO: 将kook回复标记转换成 qq @ uid
 
 // TODO: 更多 的kmarkdown tag 处理
 // 将(met)bot id(met)\s+ 变为 @ name
@@ -260,7 +261,6 @@ func kookLink2Link(content string) string {
 	return content
 }
 
-// 将kook回复标记转换成 qq @ uid
 func kookMsgToQQGroup(ctx *kook.KmarkdownMessageContext, guildId string, groupId string) {
 	if _, ok := kookMergeMap[ctx.Common.TargetID]; ok {
 		kookMergeMap[ctx.Common.TargetID] = KookLastMsg{}
@@ -391,11 +391,10 @@ func qqMsgToKook(uid int64, channel string, name string, msgs []qq.QQMsg) {
 	for _, v := range msgs {
 		fmt.Print(strconv.Itoa(v.Type) + "[" + strconv.Itoa(len(v.Content)) + "] ")
 		switch v.Type {
-		case 0:
-			cachedStrRelease()
+		case 0: // 可合并消息
 			if len(v.Content) > 0 && v.Content != " " {
 				// 忽略QQ回复消息自带的空白消息(一个0x20字符)
-				card.AddModule_markdown(v.Content)
+				cachedStr += v.Content
 			}
 		case 1:
 			cachedStrRelease()
@@ -407,6 +406,9 @@ func qqMsgToKook(uid int64, channel string, name string, msgs []qq.QQMsg) {
 			}
 		case 3: // Reply
 			cachedStr += v.Content
+		case 4: // Unknown
+			cachedStrRelease()
+			card.AddModule_markdown(v.Content)
 		}
 	}
 	cachedStrRelease()
