@@ -58,8 +58,8 @@ func kookLink2Link(content string) string {
 }
 
 func kookMsgToQQGroup(ctx *kook.KmarkdownMessageContext, guildId string, groupId string) {
-	if _, ok := kookMergeMap[ctx.Common.TargetID]; ok {
-		kookMergeMap[ctx.Common.TargetID] = KookLastMsg{}
+	if _, ok := kookLastCache[ctx.Common.TargetID]; ok {
+		kookLastCache[ctx.Common.TargetID] = kookLastMsgs{}
 	}
 	channel := ctx.Common.TargetID
 	name := ctx.Extra.Author.Nickname
@@ -74,8 +74,8 @@ func kookMsgToQQGroup(ctx *kook.KmarkdownMessageContext, guildId string, groupId
 }
 
 func imageHandler(ctx *kook.ImageMessageContext) {
-	if _, ok := kookMergeMap[ctx.Common.TargetID]; ok {
-		kookMergeMap[ctx.Common.TargetID] = KookLastMsg{}
+	if _, ok := kookLastCache[ctx.Common.TargetID]; ok {
+		kookLastCache[ctx.Common.TargetID] = kookLastMsgs{}
 	}
 	fmt.Println("[KOOK Image]:", ctx.Extra.Author.Nickname, ctx.Extra.Attachments.URL)
 	var title string
@@ -124,16 +124,6 @@ func qqMsgHandler(msg *message.GroupMessage) {
 	}
 }
 
-type KookLastMsg struct {
-	lastCard      kcard.KHLCard
-	lastUid       int64
-	lastMsgTime   int64
-	lastMsgId     string
-	lastCardStack int
-}
-
-var kookMergeMap map[string]KookLastMsg
-
 func escapeToCleanUnicode(raw string) (string, error) {
 	str, err := strconv.Unquote(strings.Replace(strconv.Quote(string(raw)), `\\u`, `\u`, -1))
 	if err != nil {
@@ -153,25 +143,25 @@ func qqMsgToKook(uid int64, channel string, name string, msgs []qq.QQMsg) {
 	var card kcard.KHLCard
 	// 是否合并消息
 	var merge bool = false
-	var entry KookLastMsg
+	var entry kookLastMsgs
 	fmt.Println("[MergeRoutine]:")
 	fmt.Println("\tchannel=", channel)
-	if kmm, ok := kookMergeMap[channel]; ok {
+	if kmm, ok := kookLastCache[channel]; ok {
 		entry = kmm
 		fmt.Println("\tuid=", uid)
-		fmt.Println("\tlastUid=", entry.lastUid)
-		fmt.Println("\tlastMsgTimeDiff=", time.Now().Unix()-entry.lastMsgTime)
-		fmt.Println("\tlastCardStack=", entry.lastCardStack)
-		if uid == entry.lastUid && time.Now().Unix()-entry.lastMsgTime < 300 && entry.lastCardStack < 10 {
-			entry.lastCardStack += 1
-			card = entry.lastCard
+		fmt.Println("\tlastUid=", entry.Uid)
+		fmt.Println("\tlastMsgTimeDiff=", time.Now().Unix()-entry.MsgTime)
+		fmt.Println("\tlastCardStack=", entry.CardStack)
+		if uid == entry.Uid && time.Now().Unix()-entry.MsgTime < 300 && entry.CardStack < 10 {
+			entry.CardStack += 1
+			card = entry.Card
 			merge = true
 		}
 	}
 	if !merge {
-		if _, ok := kookMergeMap[channel]; !ok {
-			kookMergeMap[channel] = KookLastMsg{}
-			entry = kookMergeMap[channel]
+		if _, ok := kookLastCache[channel]; !ok {
+			kookLastCache[channel] = kookLastMsgs{}
+			entry = kookLastCache[channel]
 		}
 		card = kcard.KHLCard{}
 		card.Init()
@@ -222,17 +212,17 @@ func qqMsgToKook(uid int64, channel string, name string, msgs []qq.QQMsg) {
 			fmt.Println(err.Error())
 			fmt.Println("消息转发失败", channel, card.String())
 			kookLog("消息转发失败")
-			entry.lastMsgId = ""
+			entry.MsgId = ""
 		} else {
-			entry.lastCardStack = 1
-			entry.lastMsgId = resp.MsgID
+			entry.CardStack = 1
+			entry.MsgId = resp.MsgID
 		}
 	} else {
-		updateKMsg(entry.lastMsgId, card.String())
+		updateKMsg(entry.MsgId, card.String())
 	}
 
-	entry.lastMsgTime = time.Now().Unix()
-	entry.lastUid = uid
-	copier.Copy(&entry.lastCard, &card)
-	kookMergeMap[channel] = entry
+	entry.MsgTime = time.Now().Unix()
+	entry.Uid = uid
+	copier.Copy(&entry.Card, &card)
+	kookLastCache[channel] = entry
 }

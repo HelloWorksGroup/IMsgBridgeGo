@@ -50,9 +50,7 @@ func kookInviteUrlSetup() {
 		}
 	}
 }
-func kookMergeMapSetup() {
-	kookMergeMap = make(map[string]KookLastMsg, 0)
-}
+
 func getConfig() {
 	rand.Seed(time.Now().UnixNano())
 	viper.SetDefault("token", "0")
@@ -73,5 +71,5 @@ func getConfig() {
 	fmt.Println("token=" + token)
 	routeMapSetup()
 	kookInviteUrlSetup()
-	kookMergeMapSetup()
+	kookLastCacheSetup()
 }
