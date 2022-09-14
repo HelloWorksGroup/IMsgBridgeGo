@@ -72,4 +72,5 @@ func getConfig() {
 	routeMapSetup()
 	kookInviteUrlSetup()
 	kookLastCacheSetup()
+	msgCacheSetup()
 }

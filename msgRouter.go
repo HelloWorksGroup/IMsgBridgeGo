@@ -70,7 +70,9 @@ func kookMsgToQQGroup(ctx *kook.KmarkdownMessageContext, guildId string, groupId
 
 	fmt.Println("[KOOK Markdown]:", channel, name, content)
 	id, _ := strconv.ParseInt(groupId, 10, 64)
-	qq.SendToQQGroup(name+" 转发自 KOOK:\n"+content, id)
+
+	mid := qq.SendToQQGroup(name+" 转发自 KOOK:\n"+content, id)
+	msgCache.GetMsg(groupId, strconv.FormatInt(int64(mid), 10), ctx.Extra.Author.ID)
 }
 
 func imageHandler(ctx *kook.ImageMessageContext) {
@@ -102,11 +104,15 @@ func imageHandler(ctx *kook.ImageMessageContext) {
 			if _, ok := kookInviteUrl[k]; ok {
 				inviteStr = "\n邀请链接：" + kookInviteUrl[k]
 			}
-			if showUrl {
-				qq.SendToQQGroup(ctx.Extra.Author.Nickname+" 转发自 KOOK:\n"+title+"\n"+ctx.Extra.Attachments.URL, gid)
-			} else {
-				qq.SendToQQGroup(ctx.Extra.Author.Nickname+" 转发自 KOOK:\n"+title+"\n"+path.Base(ctx.Extra.Attachments.URL)+"\n请使用KOOK查看。"+inviteStr, gid)
-			}
+			go func() {
+				var mid int32
+				if showUrl {
+					mid = qq.SendToQQGroup(ctx.Extra.Author.Nickname+" 转发自 KOOK:\n"+title+"\n"+ctx.Extra.Attachments.URL, gid)
+				} else {
+					mid = qq.SendToQQGroup(ctx.Extra.Author.Nickname+" 转发自 KOOK:\n"+title+"\n"+path.Base(ctx.Extra.Attachments.URL)+"\n请使用KOOK查看。"+inviteStr, gid)
+				}
+				msgCache.GetMsg(strconv.FormatInt(gid, 10), strconv.FormatInt(int64(mid), 10), ctx.Extra.Author.ID)
+			}()
 		}
 	}
 }
@@ -216,6 +222,7 @@ func qqMsgToKook(uid int64, channel string, name string, msgs []qq.QQMsg) {
 		} else {
 			entry.CardStack = 1
 			entry.MsgId = resp.MsgID
+			msgCache.GetMsg(channel, entry.MsgId, strconv.FormatInt(uid, 10))
 		}
 	} else {
 		updateKMsg(entry.MsgId, card.String())

@@ -45,11 +45,10 @@ func RouteKOOK2QQText(content string) {
 	}()
 }
 
-func SendToQQGroup(content string, groupId int64) {
-	go func() {
-		m := message.NewSendingMessage().Append(message.NewText(content))
-		bot.Instance.SendGroupMessage(groupId, m)
-	}()
+func SendToQQGroup(content string, groupId int64) int32 {
+	m := message.NewSendingMessage().Append(message.NewText(content))
+	ret := bot.Instance.SendGroupMessage(groupId, m)
+	return ret.Id
 }
 
 func (a *rt) MiraiGoModule() bot.ModuleInfo {
