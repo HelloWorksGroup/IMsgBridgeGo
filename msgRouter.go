@@ -224,6 +224,7 @@ func qqMsgToKook(uid int64, channel string, name string, msgs []qq.QQMsg) {
 			kookLog("消息转发失败")
 			entry.lastMsgId = ""
 		} else {
+			entry.lastCardStack = 1
 			entry.lastMsgId = resp.MsgID
 		}
 	} else {
