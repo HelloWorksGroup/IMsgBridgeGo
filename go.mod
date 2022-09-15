@@ -7,8 +7,8 @@ require (
 	github.com/Nigh/MiraiGo-Template-Mod v0.0.0-20220804125811-8dc160f3287f
 	github.com/jinzhu/copier v0.3.5
 	github.com/jpillora/overseer v1.1.6
-	github.com/lonelyevil/kook v0.0.29
-	github.com/lonelyevil/kook/log_adapter/plog v0.0.29
+	github.com/lonelyevil/kook v0.0.30
+	github.com/lonelyevil/kook/log_adapter/plog v0.0.30
 	github.com/nanobox-io/golang-scribble v0.0.0-20190309225732-aa3e7c118975
 	github.com/phuslu/log v1.0.81
 	github.com/spf13/viper v1.12.0

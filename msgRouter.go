@@ -77,9 +77,13 @@ func kookMsgToQQGroup(ctx *kook.KmarkdownMessageContext, guildId string, groupId
 	id, _ := strconv.ParseInt(groupId, 10, 64)
 
 	var mid int32
-	if ctx.Extra.Quote != nil && ctx.Extra.Quote.ID != "" && len(msgCache.WhomReply(guildId, ctx.Extra.Quote.ID)) > 0 {
+	var replyUid string
+	if ctx.Extra.Quote != nil {
+		replyUid = msgCache.WhomReply(guildId, ctx.Extra.Quote.RongID)
+	}
+	if len(replyUid) > 0 {
 		msgs := make([]message.IMessageElement, 0)
-		quoteUid, _ := strconv.ParseInt(msgCache.WhomReply(guildId, ctx.Extra.Quote.ID), 10, 64)
+		quoteUid, _ := strconv.ParseInt(replyUid, 10, 64)
 		msgs = append(msgs, message.NewText(name+" 转发自 KOOK:\n"))
 		msgs = append(msgs, message.NewAt(quoteUid))
 		msgs = append(msgs, message.NewText(content))
