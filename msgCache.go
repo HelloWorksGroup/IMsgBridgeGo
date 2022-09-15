@@ -17,6 +17,7 @@ type kookLastMsgs struct {
 type msgDetail struct {
 	MsgId     string
 	Uid       string
+	Display   string
 	Timestamp int64
 }
 
@@ -32,7 +33,7 @@ type AllChannelInstances struct {
 	instances []channelInstance
 }
 
-func (s *AllChannelInstances) GetMsg(gid string, mid string, uid string) {
+func (s *AllChannelInstances) GetMsg(gid string, mid string, uid string, name string) {
 	var found int = -1
 	for k, v := range s.instances {
 		if v.Id == gid {
@@ -51,7 +52,7 @@ func (s *AllChannelInstances) GetMsg(gid string, mid string, uid string) {
 	}
 	s.instances[found].MsgCache = append(s.instances[found].MsgCache, msgDetail{MsgId: mid, Uid: uid, Timestamp: time.Now().Unix()})
 }
-func (s *AllChannelInstances) WhomReply(gid string, mid string) (uid string) {
+func (s *AllChannelInstances) WhomReply(gid string, mid string) (uid string, name string) {
 	var foundGid int = -1
 	for k, v := range s.instances {
 		if v.Id == gid {
@@ -62,11 +63,11 @@ func (s *AllChannelInstances) WhomReply(gid string, mid string) (uid string) {
 	if foundGid >= 0 {
 		for _, v := range s.instances[foundGid].MsgCache {
 			if v.MsgId == mid {
-				return v.Uid
+				return v.Uid, v.Display
 			}
 		}
 	}
-	return ""
+	return "", ""
 }
 
 func (s *AllChannelInstances) gc() {

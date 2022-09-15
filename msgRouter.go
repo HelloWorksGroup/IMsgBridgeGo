@@ -78,21 +78,25 @@ func kookMsgToQQGroup(ctx *kook.KmarkdownMessageContext, guildId string, groupId
 	id, _ := strconv.ParseInt(groupId, 10, 64)
 
 	var mid int32
-	var replyUid string
+	var replyUid, replyName string
 	if ctx.Extra.Quote != nil {
-		replyUid = msgCache.WhomReply(guildId, ctx.Extra.Quote.RongID)
+		replyUid, replyName = msgCache.WhomReply(guildId, ctx.Extra.Quote.RongID)
 	}
 	if len(replyUid) > 0 {
 		msgs := make([]message.IMessageElement, 0)
 		quoteUid, _ := strconv.ParseInt(replyUid, 10, 64)
 		msgs = append(msgs, message.NewText(name+" 转发自 KOOK:\n"))
-		msgs = append(msgs, message.NewAt(quoteUid))
+		if len(replyName) > 0 {
+			msgs = append(msgs, message.NewAt(quoteUid, "@"+replyName))
+		} else {
+			msgs = append(msgs, message.NewAt(quoteUid))
+		}
 		msgs = append(msgs, message.NewText(content))
 		mid = qq.SendToQQGroupEx(msgs, id)
 	} else {
 		mid = qq.SendToQQGroup(name+" 转发自 KOOK:\n"+content, id)
 	}
-	msgCache.GetMsg(groupId, strconv.FormatInt(int64(mid), 10), ctx.Extra.Author.ID)
+	msgCache.GetMsg(groupId, strconv.FormatInt(int64(mid), 10), ctx.Extra.Author.ID, name)
 	log.Info().Msgf("[SEND QQ msg]:[ID=%d]", mid)
 }
 
@@ -132,7 +136,7 @@ func imageHandler(ctx *kook.ImageMessageContext) {
 				} else {
 					mid = qq.SendToQQGroup(ctx.Extra.Author.Nickname+" 转发自 KOOK:\n"+title+"\n"+path.Base(ctx.Extra.Attachments.URL)+"\n请使用KOOK查看。"+inviteStr, gid)
 				}
-				msgCache.GetMsg(strconv.FormatInt(gid, 10), strconv.FormatInt(int64(mid), 10), ctx.Extra.Author.ID)
+				msgCache.GetMsg(strconv.FormatInt(gid, 10), strconv.FormatInt(int64(mid), 10), ctx.Extra.Author.ID, ctx.Extra.Author.Nickname)
 				log.Info().Msgf("[SEND QQ msg]:[ID=%d]", mid)
 			}()
 		}
@@ -172,6 +176,8 @@ func qqMsgToKook(gid string, uid int64, channel string, name string, msgs []qq.Q
 	// 是否合并消息
 	var merge bool = false
 	var entry kookLastMsgs
+	var cleanName string
+	var err error
 	log.Info().Msgf("qmsg-log:%v", msgs)
 	if kmm, ok := kookLastCache[channel]; ok {
 		entry = kmm
@@ -189,7 +195,7 @@ func qqMsgToKook(gid string, uid int64, channel string, name string, msgs []qq.Q
 		card = kcard.KHLCard{}
 		card.Init()
 		card.Card.Theme = "success"
-		cleanName, err := escapeToCleanUnicode(name)
+		cleanName, err = escapeToCleanUnicode(name)
 		if err != nil {
 			cleanName = "某姓名无法打印人士"
 		}
@@ -225,7 +231,7 @@ func qqMsgToKook(gid string, uid int64, channel string, name string, msgs []qq.Q
 			if len(matchs) > 0 {
 				mid = matchs[0]
 			}
-			replyUid := msgCache.WhomReply(gid, mid)
+			replyUid, _ := msgCache.WhomReply(gid, mid)
 			if len(replyUid) > 0 {
 				cachedStr += "(met)" + replyUid + "(met) "
 			} else {
@@ -245,7 +251,7 @@ func qqMsgToKook(gid string, uid int64, channel string, name string, msgs []qq.Q
 		} else {
 			entry.CardStack = 1
 			entry.MsgId = resp.MsgID
-			msgCache.GetMsg(channel, entry.MsgId, strconv.FormatInt(uid, 10))
+			msgCache.GetMsg(channel, entry.MsgId, strconv.FormatInt(uid, 10), cleanName)
 			log.Info().Msgf("[SEND KOOK msg]:[ID=%s]", entry.MsgId)
 		}
 	} else {
