@@ -17,11 +17,14 @@ import (
 	"github.com/phuslu/log"
 )
 
+// TODO: 大量辣鸡代码待优化
+
 // TODO: 支持消息回复
 // TODO: 将kook回复标记转换成 qq @ uid
 
 // TODO: 更多 的kmarkdown tag 处理
 // TODO: 处理KOOK服务器表情
+// TODO: 移除对于机器人自身的at转发，QQ & KOOK
 // 将(met)bot id(met)\s+ 变为 @ name
 func kookMet2At(content string, channelId string) string {
 	replaceMap := make(map[string]string)
@@ -73,8 +76,17 @@ func kookMsgToQQGroup(ctx *kook.KmarkdownMessageContext, guildId string, groupId
 	log.Info().Msgf("[KOOK Markdown]:[channel=%v][name=%v][content=%v]", channel, name, content)
 	id, _ := strconv.ParseInt(groupId, 10, 64)
 
-	// if ctx.Common.
-	mid := qq.SendToQQGroup(name+" 转发自 KOOK:\n"+content, id)
+	var mid int32
+	if ctx.Extra.Quote.ID != "" && len(msgCache.WhomReply(guildId, ctx.Extra.Quote.ID)) > 0 {
+		msgs := make([]message.IMessageElement, 0)
+		quoteUid, _ := strconv.ParseInt(msgCache.WhomReply(guildId, ctx.Extra.Quote.ID), 10, 64)
+		msgs = append(msgs, message.NewText(name+" 转发自 KOOK:\n"))
+		msgs = append(msgs, message.NewAt(quoteUid))
+		msgs = append(msgs, message.NewText(content))
+		mid = qq.SendToQQGroupEx(msgs, id)
+	} else {
+		mid = qq.SendToQQGroup(name+" 转发自 KOOK:\n"+content, id)
+	}
 	msgCache.GetMsg(groupId, strconv.FormatInt(int64(mid), 10), ctx.Extra.Author.ID)
 	log.Info().Msgf("[SEND QQ msg]:[ID=%d]", mid)
 }
@@ -130,7 +142,7 @@ func qqMsgHandler(msg *message.GroupMessage) {
 			if name == "" {
 				name = msg.Sender.Nickname
 			}
-			go qqMsgToKook(msg.Sender.Uin, v, name, qq.GroupMsgParse(msg))
+			go qqMsgToKook(gid, msg.Sender.Uin, v, name, qq.GroupMsgParse(msg))
 		}
 	}
 }
@@ -150,7 +162,7 @@ func escapeToCleanUnicode(raw string) (string, error) {
 }
 
 // DONE: 相同用户短时间连续发言自动合并
-func qqMsgToKook(uid int64, channel string, name string, msgs []qq.QQMsg) {
+func qqMsgToKook(gid string, uid int64, channel string, name string, msgs []qq.QQMsg) {
 	var card kcard.KHLCard
 	// 是否合并消息
 	var merge bool = false
@@ -202,7 +214,18 @@ func qqMsgToKook(uid int64, channel string, name string, msgs []qq.QQMsg) {
 				cachedStr += v.Content
 			}
 		case 3: // Reply
-			cachedStr += v.Content
+			var mid string
+			r := regexp.MustCompile(`\d+`)
+			matchs := r.FindStringSubmatch(v.Content)
+			if len(matchs) > 0 {
+				mid = matchs[0]
+			}
+			replyUid := msgCache.WhomReply(gid, mid)
+			if len(replyUid) > 0 {
+				cachedStr += "(met)" + replyUid + "(met) "
+			} else {
+				cachedStr += v.Content
+			}
 		case 4: // Unknown
 			cachedStrRelease()
 			card.AddModule_markdown(v.Content)

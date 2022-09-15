@@ -45,6 +45,14 @@ func RouteKOOK2QQText(content string) {
 	}()
 }
 
+func SendToQQGroupEx(e []message.IMessageElement, groupId int64) int32 {
+	m := message.NewSendingMessage()
+	for _, v := range e {
+		m.Append(v)
+	}
+	ret := bot.Instance.SendGroupMessage(groupId, m)
+	return ret.Id
+}
 func SendToQQGroup(content string, groupId int64) int32 {
 	m := message.NewSendingMessage().Append(message.NewText(content))
 	ret := bot.Instance.SendGroupMessage(groupId, m)
