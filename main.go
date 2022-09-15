@@ -101,6 +101,7 @@ func prog(state overseer.State) {
 	} else {
 		kookLog("接收到外部指令，系统即将关闭")
 	}
+	beforeShutdown()
 
 	fmt.Println("Bot will shutdown after 1 second.")
 

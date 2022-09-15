@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/lonelyevil/kook"
+	scribble "github.com/nanobox-io/golang-scribble"
 	"github.com/spf13/viper"
 )
 
@@ -24,6 +25,8 @@ var botID string
 var localSession *kook.Session
 
 var token string
+
+var db *scribble.Driver
 
 func routeMapSetup() {
 	routeMap = make(map[string]string, 0)
@@ -53,6 +56,7 @@ func kookInviteUrlSetup() {
 
 func getConfig() {
 	rand.Seed(time.Now().UnixNano())
+	db, _ = scribble.New("./database", nil)
 	viper.SetDefault("token", "0")
 	viper.SetDefault("stdoutChannel", "0")
 	viper.SetDefault("masterID", "")
@@ -73,4 +77,8 @@ func getConfig() {
 	kookInviteUrlSetup()
 	kookLastCacheSetup()
 	msgCacheSetup()
+}
+
+func beforeShutdown() {
+	msgCache.Backup()
 }

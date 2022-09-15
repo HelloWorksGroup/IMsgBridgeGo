@@ -9,6 +9,7 @@ require (
 	github.com/jpillora/overseer v1.1.6
 	github.com/lonelyevil/kook v0.0.28
 	github.com/lonelyevil/kook/log_adapter/plog v0.0.28
+	github.com/nanobox-io/golang-scribble v0.0.0-20190309225732-aa3e7c118975
 	github.com/phuslu/log v1.0.81
 	github.com/spf13/viper v1.12.0
 	local/khlcard v0.0.0-00010101000000-000000000000
@@ -28,6 +29,7 @@ require (
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
+	github.com/jcelliott/lumber v0.0.0-20160324203708-dd349441af25 // indirect
 	github.com/jpillora/s3 v1.1.4 // indirect
 	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible // indirect
 	github.com/lestrrat-go/strftime v1.0.6 // indirect

@@ -90,8 +90,13 @@ func (s *AllChannelInstances) gc() {
 	kookLog("执行GC......\nGC前消息缓存深度为`" + strconv.Itoa(startCacheDepth) + "`\nGC后消息缓存深度为`" + strconv.Itoa(endCacheDepth) + "`")
 }
 
+func (s *AllChannelInstances) Backup() {
+	db.Write("db", "AllChannelInstances", s.instances)
+}
+
 func (s *AllChannelInstances) init() {
 	s.instances = make([]channelInstance, 0)
+	db.Read("db", "AllChannelInstances", &s.instances)
 	go func() {
 		ticker := time.NewTicker(60 * time.Minute)
 		for range ticker.C {

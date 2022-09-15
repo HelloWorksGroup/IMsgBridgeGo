@@ -21,6 +21,7 @@ import (
 // TODO: 将kook回复标记转换成 qq @ uid
 
 // TODO: 更多 的kmarkdown tag 处理
+// TODO: 处理KOOK服务器表情
 // 将(met)bot id(met)\s+ 变为 @ name
 func kookMet2At(content string, channelId string) string {
 	replaceMap := make(map[string]string)
