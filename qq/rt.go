@@ -97,7 +97,9 @@ func GroupMsgParse(msg *message.GroupMessage) (qqmsg []QQMsg) {
 		case *message.MarketFaceElement:
 			qqmsg = append(qqmsg, QQMsg{0, "[商店表情:" + e.Name + "]"})
 		case *message.AtElement:
-			qqmsg = append(qqmsg, QQMsg{2, "[" + e.Display + "]"})
+			if e.Target != bot.Instance.Uin {
+				qqmsg = append(qqmsg, QQMsg{2, "[" + e.Display + "]"})
+			}
 		case *message.RedBagElement:
 			qqmsg = append(qqmsg, QQMsg{0, "[红包:" + e.Title + "]"})
 		case *message.ReplyElement:
