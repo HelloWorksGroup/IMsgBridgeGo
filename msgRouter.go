@@ -30,6 +30,7 @@ func kookMet2At(content string, channelId string) string {
 	replaceMap := make(map[string]string)
 	var c *kook.Channel = nil
 	r := regexp.MustCompile(`\(met\)(\d+)\(met\)`)
+	content = strings.ReplaceAll(content, "(met)"+botID+"(met)", "")
 	for {
 		matchs := r.FindStringSubmatch(content)
 		if len(matchs) > 0 {
