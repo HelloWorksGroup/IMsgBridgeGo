@@ -24,11 +24,14 @@ import (
 
 var appName string = "QQ Hime"
 
-var buildVersion string = appName + " 0028"
+var buildVersion string = appName + " 0029"
 
 func buildUpdateLog() string {
 	updateLog := ""
-	updateLog += "1. 消息回复功能测试"
+	updateLog += "1. 消息回复功能测试中\n" +
+		"2. 在QQ和KOOK中at机器人的at消息将不会被转发\n" +
+		"3. 消息缓存现在不论时间，都会保留每个服务器中最近的32条记录\n" +
+		"4. 消息缓存新增显示名称字段，用于QQ中at消息的实现"
 	updateLog += "\n\nHelloWorks-QQ Hime@[GitHub](https://github.com/HelloWorksGroup/KOOK2QQ-bot)"
 	return updateLog
 }
