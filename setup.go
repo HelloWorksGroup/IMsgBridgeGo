@@ -72,7 +72,6 @@ func getConfig() {
 	stdoutChannel = viper.Get("stdoutChannel").(string)
 	fmt.Println("stdoutChannel=" + stdoutChannel)
 	token = viper.Get("token").(string)
-	fmt.Println("token=" + token)
 	routeMapSetup()
 	kookInviteUrlSetup()
 	kookLastCacheSetup()

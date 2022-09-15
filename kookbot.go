@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"math/rand"
 	"regexp"
 	"strconv"
@@ -41,7 +40,6 @@ func stdinHandler(ctx *kook.KmarkdownMessageContext) {
 
 func portMarkdown(ctxCommon *kook.EventDataGeneral, s []string, f func(string) string) {
 	sendMarkdown(s[1], s[2])
-	return
 }
 
 var directRules []handlerRule = []handlerRule{
@@ -57,7 +55,6 @@ func directMessageHandler(ctxCommon *kook.EventDataGeneral) {
 		resp, _ := sendMarkdownDirect(masterID, words)
 		return resp.MsgID
 	}
-	fmt.Println("Master said: " + ctxCommon.Content)
 
 	for n := range directRules {
 		v := &directRules[n]

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	kcard "local/khlcard"
 	qq "local/rt"
 	"math/rand"
@@ -15,6 +14,7 @@ import (
 	"github.com/Mrs4s/MiraiGo/message"
 	"github.com/jinzhu/copier"
 	"github.com/lonelyevil/kook"
+	"github.com/phuslu/log"
 )
 
 // TODO: 支持消息回复
@@ -59,6 +59,7 @@ func kookLink2Link(content string) string {
 }
 
 func kookMsgToQQGroup(ctx *kook.KmarkdownMessageContext, guildId string, groupId string) {
+	log.Info().Msgf("kmsg-log:%v", ctx)
 	if _, ok := kookLastCache[ctx.Common.TargetID]; ok {
 		kookLastCache[ctx.Common.TargetID] = kookLastMsgs{}
 	}
@@ -69,18 +70,20 @@ func kookMsgToQQGroup(ctx *kook.KmarkdownMessageContext, guildId string, groupId
 	content = kookMet2At(content, guildId)
 	content = kookLink2Link(content)
 
-	fmt.Println("[KOOK Markdown]:", channel, name, content)
+	log.Info().Msgf("[KOOK Markdown]:[channel=%v][name=%v][content=%v]", channel, name, content)
 	id, _ := strconv.ParseInt(groupId, 10, 64)
 
+	// if ctx.Common.
 	mid := qq.SendToQQGroup(name+" 转发自 KOOK:\n"+content, id)
 	msgCache.GetMsg(groupId, strconv.FormatInt(int64(mid), 10), ctx.Extra.Author.ID)
+	log.Info().Msgf("[SEND QQ msg]:[ID=%d]", mid)
 }
 
 func imageHandler(ctx *kook.ImageMessageContext) {
 	if _, ok := kookLastCache[ctx.Common.TargetID]; ok {
 		kookLastCache[ctx.Common.TargetID] = kookLastMsgs{}
 	}
-	fmt.Println("[KOOK Image]:", ctx.Extra.Author.Nickname, ctx.Extra.Attachments.URL)
+	log.Info().Msgf("[KOOK Image]:[name=%v][url=%v]", ctx.Extra.Author.Nickname, ctx.Extra.Attachments.URL)
 	var title string
 	var showUrl bool = false
 	for k, v := range routeMap {
@@ -113,6 +116,7 @@ func imageHandler(ctx *kook.ImageMessageContext) {
 					mid = qq.SendToQQGroup(ctx.Extra.Author.Nickname+" 转发自 KOOK:\n"+title+"\n"+path.Base(ctx.Extra.Attachments.URL)+"\n请使用KOOK查看。"+inviteStr, gid)
 				}
 				msgCache.GetMsg(strconv.FormatInt(gid, 10), strconv.FormatInt(int64(mid), 10), ctx.Extra.Author.ID)
+				log.Info().Msgf("[SEND QQ msg]:[ID=%d]", mid)
 			}()
 		}
 	}
@@ -151,14 +155,9 @@ func qqMsgToKook(uid int64, channel string, name string, msgs []qq.QQMsg) {
 	// 是否合并消息
 	var merge bool = false
 	var entry kookLastMsgs
-	fmt.Println("[MergeRoutine]:")
-	fmt.Println("\tchannel=", channel)
+	log.Info().Msgf("qmsg-log:%v", msgs)
 	if kmm, ok := kookLastCache[channel]; ok {
 		entry = kmm
-		fmt.Println("\tuid=", uid)
-		fmt.Println("\tlastUid=", entry.Uid)
-		fmt.Println("\tlastMsgTimeDiff=", time.Now().Unix()-entry.MsgTime)
-		fmt.Println("\tlastCardStack=", entry.CardStack)
 		if uid == entry.Uid && time.Now().Unix()-entry.MsgTime < 300 && entry.CardStack < 10 {
 			entry.CardStack += 1
 			card = entry.Card
@@ -179,7 +178,6 @@ func qqMsgToKook(uid int64, channel string, name string, msgs []qq.QQMsg) {
 		}
 		card.AddModule_markdown("**`" + cleanName + "`** 转发自 QQ:\n---")
 	}
-	fmt.Print("Type Sequence: ")
 	var atCount int = 0
 	var cachedStr string = ""
 	cachedStrRelease := func() {
@@ -189,7 +187,6 @@ func qqMsgToKook(uid int64, channel string, name string, msgs []qq.QQMsg) {
 		}
 	}
 	for _, v := range msgs {
-		fmt.Print(strconv.Itoa(v.Type) + "[" + strconv.Itoa(len(v.Content)) + "] ")
 		switch v.Type {
 		case 0: // 可合并消息
 			if len(v.Content) > 0 && v.Content != " " {
@@ -212,18 +209,16 @@ func qqMsgToKook(uid int64, channel string, name string, msgs []qq.QQMsg) {
 		}
 	}
 	cachedStrRelease()
-	fmt.Println("")
 	if !merge {
 		resp, err := sendKCard(channel, card.String())
 		if err != nil {
-			fmt.Println(err.Error())
-			fmt.Println("消息转发失败", channel, card.String())
 			kookLog("消息转发失败")
 			entry.MsgId = ""
 		} else {
 			entry.CardStack = 1
 			entry.MsgId = resp.MsgID
 			msgCache.GetMsg(channel, entry.MsgId, strconv.FormatInt(uid, 10))
+			log.Info().Msgf("[SEND KOOK msg]:[ID=%s]", entry.MsgId)
 		}
 	} else {
 		updateKMsg(entry.MsgId, card.String())

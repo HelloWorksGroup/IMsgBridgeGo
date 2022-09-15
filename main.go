@@ -24,11 +24,11 @@ import (
 
 var appName string = "QQ Hime"
 
-var buildVersion string = appName + " 0026"
+var buildVersion string = appName + " 0027"
 
 func buildUpdateLog() string {
 	updateLog := ""
-	updateLog += "1. 增加消息缓存，为消息回复的支持做准备"
+	updateLog += "1. 增加消息缓存，为消息回复的支持做准备\n2. 优化Log模块"
 	updateLog += "\n\nHelloWorks-QQ Hime@[GitHub](https://github.com/HelloWorksGroup/KOOK2QQ-bot)"
 	return updateLog
 }
@@ -39,6 +39,7 @@ type handlerRule struct {
 }
 
 func kookLog(markdown string) {
+	log.Info().Msgf("kq-log:%s", markdown)
 	localTime := time.Now().Local()
 	strconv.Itoa(localTime.Hour())
 	strconv.Itoa(localTime.Minute())
@@ -55,8 +56,15 @@ func prog(state overseer.State) {
 	getConfig()
 
 	l := log.Logger{
-		Level:  log.InfoLevel,
-		Writer: &log.ConsoleWriter{},
+		Level: log.InfoLevel,
+		Writer: &log.MultiEntryWriter{
+			&log.ConsoleWriter{ColorOutput: true},
+			&log.FileWriter{
+				Filename:   "kq.log",
+				MaxSize:    512 << 10,
+				MaxBackups: 16,
+				LocalTime:  true},
+		},
 	}
 
 	s := kook.New(token, plog.NewLogger(&l))
