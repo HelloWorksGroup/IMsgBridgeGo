@@ -77,6 +77,9 @@ func (s *AllChannelInstances) gc() {
 		startCacheDepth += len(v.MsgCache)
 	}
 	for k := range s.instances {
+		if len(s.instances[k].MsgCache) < 32 {
+			continue
+		}
 		temp := s.instances[k].MsgCache[:0]
 		for km := range s.instances[k].MsgCache {
 			if now-s.instances[k].MsgCache[km].Timestamp < 86400 {
@@ -88,7 +91,7 @@ func (s *AllChannelInstances) gc() {
 	for _, v := range s.instances {
 		endCacheDepth += len(v.MsgCache)
 	}
-	kookLog("执行GC......\nGC前消息缓存深度为`" + strconv.Itoa(startCacheDepth) + "`\nGC后消息缓存深度为`" + strconv.Itoa(endCacheDepth) + "`")
+	kookLog("执行GC......\nGC前缓存深度为`" + strconv.Itoa(startCacheDepth) + "`\nGC后缓存深度为`" + strconv.Itoa(endCacheDepth) + "`")
 }
 
 func (s *AllChannelInstances) Backup() {
@@ -99,7 +102,7 @@ func (s *AllChannelInstances) init() {
 	s.instances = make([]channelInstance, 0)
 	db.Read("db", "AllChannelInstances", &s.instances)
 	go func() {
-		ticker := time.NewTicker(60 * time.Minute)
+		ticker := time.NewTicker(67 * time.Minute)
 		for range ticker.C {
 			s.gc()
 		}
