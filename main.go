@@ -98,11 +98,11 @@ func prog(state overseer.State) {
 			sendKCard(stdoutChannel, card.String())
 		}()
 	}
-
 	viper.Set("oldversion", buildVersion)
 	viper.WriteConfig()
 
 	kookLog("系统已完全启动")
+	msgCache.gc()
 
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, os.Interrupt, overseer.SIGUSR2)
