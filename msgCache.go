@@ -91,7 +91,10 @@ func (s *AllChannelInstances) gc() {
 	for _, v := range s.instances {
 		endCacheDepth += len(v.MsgCache)
 	}
-	kookLog("执行GC......\nGC前缓存深度为`" + strconv.Itoa(startCacheDepth) + "`\nGC后缓存深度为`" + strconv.Itoa(endCacheDepth) + "`")
+	collectCount := startCacheDepth - endCacheDepth
+	if collectCount > 0 {
+		kookLog("有效GC执行。\n回收消息缓存槽位`" + strconv.Itoa(collectCount) + "个`\n当前缓存深度为`" + strconv.Itoa(endCacheDepth) + "`")
+	}
 }
 
 func (s *AllChannelInstances) Backup() {
