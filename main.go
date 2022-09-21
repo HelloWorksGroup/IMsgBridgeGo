@@ -24,12 +24,12 @@ import (
 
 var appName string = "QQ Hime"
 
-var buildVersion string = appName + " 0031"
+var buildVersion string = appName + " 0032"
 
 func buildUpdateLog() string {
 	updateLog := ""
 	updateLog += "1. 消息回复功能测试中\n" +
-		"2. 修复日志系统"
+		"2. 不再在`Stdio`频道输出GC调试信息"
 	updateLog += "\n\nHelloWorks-QQ Hime@[GitHub](https://github.com/HelloWorksGroup/KOOK2QQ-bot)"
 	return updateLog
 }
