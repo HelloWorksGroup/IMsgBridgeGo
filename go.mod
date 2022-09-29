@@ -1,13 +1,15 @@
 module github.com/HelloWorksGroup/KOOK2QQ-bot
 
-go 1.18
+go 1.19
 
 require (
+	github.com/Mrs4s/MiraiGo v0.0.0-20220831135948-e657427abdc3
 	github.com/Nigh/MiraiGo-Template-Mod v0.0.0-20220804125811-8dc160f3287f
 	github.com/jinzhu/copier v0.3.5
 	github.com/jpillora/overseer v1.1.6
-	github.com/lonelyevil/khl v0.0.27
-	github.com/lonelyevil/khl/log_adapter/plog v0.0.27
+	github.com/lonelyevil/kook v0.0.30
+	github.com/lonelyevil/kook/log_adapter/plog v0.0.30
+	github.com/nanobox-io/golang-scribble v0.0.0-20190309225732-aa3e7c118975
 	github.com/phuslu/log v1.0.81
 	github.com/spf13/viper v1.12.0
 	local/khlcard v0.0.0-00010101000000-000000000000
@@ -16,7 +18,6 @@ require (
 
 require (
 	github.com/Baozisoftware/qrcode-terminal-go v0.0.0-20170407111555-c0650d8dff0f // indirect
-	github.com/Mrs4s/MiraiGo v0.0.0-20220720124026-5c0e2c5773de // indirect
 	github.com/RomiChan/protobuf v0.1.1-0.20220624030127-3310cba9dbc0 // indirect
 	github.com/RomiChan/syncx v0.0.0-20220404072119-d7ea0ae15a4c // indirect
 	github.com/StackExchange/wmi v1.2.1 // indirect
@@ -28,6 +29,7 @@ require (
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
+	github.com/jcelliott/lumber v0.0.0-20160324203708-dd349441af25 // indirect
 	github.com/jpillora/s3 v1.1.4 // indirect
 	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible // indirect
 	github.com/lestrrat-go/strftime v1.0.6 // indirect
@@ -48,12 +50,11 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/subosito/gotenv v1.4.0 // indirect
-	github.com/tidwall/gjson v1.14.1 // indirect
+	github.com/tidwall/gjson v1.14.3 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.0 // indirect
 	github.com/tuotoo/qrcode v0.0.0-20220425170535-52ccc2bebf5d // indirect
-	go.uber.org/atomic v1.9.0 // indirect
-	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4 // indirect
+	golang.org/x/sync v0.0.0-20220819030929-7fc1605a5dde // indirect
 	golang.org/x/sys v0.0.0-20220803195053-6e608f9ce704 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	gopkg.in/ini.v1 v1.66.6 // indirect
