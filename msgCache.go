@@ -2,7 +2,6 @@ package main
 
 import (
 	kcard "local/khlcard"
-	"strconv"
 	"time"
 )
 
@@ -93,7 +92,7 @@ func (s *AllChannelInstances) gc() {
 	}
 	collectCount := startCacheDepth - endCacheDepth
 	if collectCount > 0 {
-		kookLog("有效GC执行。\n回收消息缓存槽位`" + strconv.Itoa(collectCount) + "个`\n当前缓存深度为`" + strconv.Itoa(endCacheDepth) + "`")
+		gLog.Info().Msgf("Valid GC: Cache slot %d recovered, current cache depth %d", collectCount, endCacheDepth)
 	}
 }
 

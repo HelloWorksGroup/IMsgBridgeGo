@@ -245,14 +245,14 @@ func qqMsgToKook(gid string, uid int64, channel string, name string, msgs []qq.Q
 	if !merge {
 		resp, err := sendKCard(channel, card.String())
 		if err != nil {
-			gLog.Info().Msgf("[SEND KOOK msg FAIL]:[json=%s]", card.String())
+			gLog.Error().Msgf("[SEND KOOK MSG]:[json=%s]", card.String())
 			kookLog("消息转发失败")
 			entry.MsgId = ""
 		} else {
 			entry.CardStack = 1
 			entry.MsgId = resp.MsgID
 			msgCache.GetMsg(channel, entry.MsgId, strconv.FormatInt(uid, 10), cleanName)
-			gLog.Info().Msgf("[SEND KOOK msg]:[ID=%s]", entry.MsgId)
+			gLog.Info().Msgf("[SEND KOOK MSG]:[ID=%s][json=%s]", entry.MsgId, card.String())
 		}
 	} else {
 		updateKMsg(entry.MsgId, card.String())
