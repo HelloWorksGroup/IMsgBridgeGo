@@ -1,0 +1,27 @@
+[Unit]
+Description=kook2qq_bot
+
+Wants=network.target
+After=syslog.target network-online.target
+
+[Service]
+Type=simple
+# 运行下面命令所使用的用户
+User=ubuntu
+# 服务启动所运行的命令，使用绝对路径
+ExecStart=/home/ubuntu/apps/{EDIT_THERE}
+# 运行目录
+WorkingDirectory=/home/ubuntu/apps/{EDIT_THERE}
+Restart=on-failure
+# restart延迟
+RestartSec=10
+# 每天自动重启
+RuntimeMaxSec=86400
+KillMode=process
+# kill进程时发送的信号，默认为SIGTERM
+KillSignal=SIGINT
+# kill超时，超时后将发送SIGKILL信号
+TimeoutStopSec=10
+
+[Install]
+WantedBy=multi-user.target
