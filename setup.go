@@ -38,6 +38,7 @@ var token string
 var db *scribble.Driver
 
 func routeMapInit() {
+	vc2qqRouteMap = make(map[string]vocechatInstance, 0)
 	kook2qqRouteMap = make(map[string]string, 0)
 	kookInviteUrl = make(map[string]string, 0)
 }
