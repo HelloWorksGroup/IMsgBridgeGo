@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math/rand"
+	"strconv"
 	"time"
 
 	"github.com/lonelyevil/kook"
@@ -16,6 +17,13 @@ var stdoutChannel string
 // 转发map
 var kook2qqRouteMap map[string]string
 
+// [qqgroup] [vcsetting]
+type vocechatInstance struct {
+	Url    string
+	Secret string
+}
+
+var vc2qqRouteMap map[string]vocechatInstance
 
 // 邀请map
 var kookInviteUrl map[string]string
@@ -56,7 +64,11 @@ func kookInviteUrlSetup() {
 		}
 	}
 }
+
+var vcCount int
+
 func RouteMapSetup() {
+	vcCount = 0
 	s := viper.Get("routes").([]any)
 	for _, newmap := range s {
 		fmt.Println(newmap)
@@ -69,6 +81,12 @@ func RouteMapSetup() {
 				if route["hostinvite"] != nil {
 					kookInviteUrl[route["host"].(string)] = route["hostinvite"].(string)
 				}
+			}
+		}
+		if route["type"] == "vc2qq" {
+			if route["vcurl"] != nil && route["secret"] != nil && route["qqgroup"] != nil {
+				vc2qqRouteMap[route["qqgroup"].(string)] = vocechatInstance{Url: route["vcurl"].(string), Secret: route["secret"].(string)}
+				vcCount += 1
 			}
 		}
 	}
@@ -90,6 +108,7 @@ func GetConfig() {
 	}
 	masterID = viper.Get("masterID").(string)
 	stdoutChannel = viper.Get("stdoutChannel").(string)
+	vcport, _ := strconv.Atoi(viper.Get("vcport").(string))
 	fmt.Println("stdoutChannel=" + stdoutChannel)
 	token = viper.Get("token").(string)
 
@@ -100,6 +119,10 @@ func GetConfig() {
 	kookInviteUrlSetup()
 	kookLastCacheSetup()
 	msgCacheSetup()
+
+	if vcCount > 0 && vcport > 0 {
+		go voceChatBot(vcport)
+	}
 }
 
 func beforeShutdown() {
