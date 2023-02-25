@@ -106,7 +106,7 @@ func imageHandler(ctx *kook.ImageMessageContext) {
 	gLog.Info().Msgf("[KOOK Image]:[name=%v][url=%v]", ctx.Extra.Author.Nickname, ctx.Extra.Attachments.URL)
 	var title string
 	var showUrl bool = false
-	for k, v := range routeMap {
+	for k, v := range kook2qqRouteMap {
 		if ctx.Common.TargetID == k {
 			gid, _ := strconv.ParseInt(v, 10, 64)
 			casen := rand.Intn(100)
@@ -143,7 +143,7 @@ func imageHandler(ctx *kook.ImageMessageContext) {
 }
 
 func qqMsgHandler(msg *message.GroupMessage) {
-	for k, v := range routeMap {
+	for k, v := range kook2qqRouteMap {
 		gid := strconv.FormatInt(msg.GroupCode, 10)
 		if gid == k {
 			name := msg.Sender.CardName

@@ -141,7 +141,7 @@ func markdownMessageHandler(ctx *kook.KmarkdownMessageContext) {
 	case stdoutChannel:
 		stdinHandler(ctx)
 	default:
-		for k, v := range routeMap {
+		for k, v := range kook2qqRouteMap {
 			if ctx.Common.TargetID == k {
 				go kookMsgToQQGroup(ctx, k, v)
 			}

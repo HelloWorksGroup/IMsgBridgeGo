@@ -14,7 +14,8 @@ import (
 var stdoutChannel string
 
 // 转发map
-var routeMap map[string]string
+var kook2qqRouteMap map[string]string
+
 
 // 邀请map
 var kookInviteUrl map[string]string
@@ -29,7 +30,7 @@ var token string
 var db *scribble.Driver
 
 func routeMapInit() {
-	routeMap = make(map[string]string, 0)
+	kook2qqRouteMap = make(map[string]string, 0)
 	kookInviteUrl = make(map[string]string, 0)
 }
 func routeMapSetupOld() {
@@ -37,11 +38,11 @@ func routeMapSetupOld() {
 	for k, v := range s {
 		vs := v.(string)
 		if k != v {
-			if _, ok := routeMap[k]; !ok {
-				routeMap[k] = vs
+			if _, ok := kook2qqRouteMap[k]; !ok {
+				kook2qqRouteMap[k] = vs
 			}
-			if _, ok := routeMap[vs]; !ok {
-				routeMap[vs] = k
+			if _, ok := kook2qqRouteMap[vs]; !ok {
+				kook2qqRouteMap[vs] = k
 			}
 		}
 	}
@@ -63,8 +64,8 @@ func RouteMapSetup() {
 		fmt.Println(route["type"])
 		if route["type"] == "kook2qq" {
 			if route["host"] != nil && route["qqgroup"] != nil {
-				routeMap[route["host"].(string)] = route["qqgroup"].(string)
-				routeMap[route["qqgroup"].(string)] = route["host"].(string)
+				kook2qqRouteMap[route["host"].(string)] = route["qqgroup"].(string)
+				kook2qqRouteMap[route["qqgroup"].(string)] = route["host"].(string)
 				if route["hostinvite"] != nil {
 					kookInviteUrl[route["host"].(string)] = route["hostinvite"].(string)
 				}
