@@ -43,7 +43,8 @@ bot:
   },
   {
    "type": "vc2qq",
-   "vcurl": "https://vocechat.test/api/bot/send_to_group/1",
+   "vcapi": "https://vocechat.test/api",
+   "gid": "1",
    "secret": "556c5957b22756964223a332c226e6f6e6365223a227a67446",
    "qqgroup": "5543054283"
   }
@@ -62,8 +63,9 @@ bot:
   - 在 `kook2qq` 类型中，
     - `host` 为 `KOOK` 频道的ID
   - 在 `vc2qq` 类型中，
-    - `vcurl` 为 `vocechat` 推送群消息的接口
+    - `vcapi` 为 `vocechat` 的api接口url
     - `secret` 为 `vocechat` 推送群消息的 `api-key`
+    - `gid` 为 `vocechat` 的群ID
 - `vcport` 为 接收 `vocechat webhook` 消息推送的端口，将会监听此端口
 - `stdoutchannel` 为 `KOOK` 上机器人输出调试信息的频道，不使用可以留空。
 - `masterid` 为你的 `KOOK` ID

@@ -21,6 +21,7 @@ var kook2qqRouteMap map[string]string
 type vocechatInstance struct {
 	Url    string
 	Secret string
+	Gid    string
 }
 
 var vc2qqRouteMap map[string]vocechatInstance
@@ -85,8 +86,8 @@ func RouteMapSetup() {
 			}
 		}
 		if route["type"] == "vc2qq" {
-			if route["vcurl"] != nil && route["secret"] != nil && route["qqgroup"] != nil {
-				vc2qqRouteMap[route["qqgroup"].(string)] = vocechatInstance{Url: route["vcurl"].(string), Secret: route["secret"].(string)}
+			if route["gid"] != nil && route["vcapi"] != nil && route["secret"] != nil && route["qqgroup"] != nil {
+				vc2qqRouteMap[route["qqgroup"].(string)] = vocechatInstance{Url: route["vcapi"].(string), Secret: route["secret"].(string), Gid: route["gid"].(string)}
 				vcCount += 1
 			}
 		}
