@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	qq "local/rt"
@@ -13,6 +14,7 @@ type vocechatUser struct {
 	Name   string `json:"name"`
 	Uid    int    `json:"uid"`
 	Gender int    `json:"gender"`
+	IsBot  bool   `json:"is_bot"`
 }
 type vocechatDetail struct {
 	Content     string `json:"content,omitempty"`
@@ -56,18 +58,39 @@ func handleWebhook(w http.ResponseWriter, r *http.Request) {
 				// 获取用户名称
 				r, err := http.Get(v.Url + "/user/" + strconv.Itoa(vcJSON.From))
 				var name string = "未知姓名"
-				if err == nil {
-					decoder := json.NewDecoder(r.Body)
-					var user vocechatUser
-					decoder.Decode(&user)
-					name = user.Name
+				if err != nil {
+					// Error log
 				}
+				decoder := json.NewDecoder(r.Body)
+				var user vocechatUser
+				decoder.Decode(&user)
+				// 判断消息是否是机器人发送
+				if user.IsBot {
+					return
+				}
+				name = user.Name
 				// 转发消息至目的地
 				id, _ := strconv.ParseInt(qqgroup, 10, 64)
 				qq.SendToQQGroup(name+" 转发自 vocechat:\n"+vcJSON.Detail.Content, id)
 				return
 			}
 		}
+	}
+}
+
+func vocechatSend(url string, gid int, secret string, content string) {
+	markdown := []byte(content)
+	r, err := http.NewRequest("POST", url+"/bot/send_to_group/"+strconv.Itoa(gid), bytes.NewBuffer(markdown))
+	if err != nil {
+		return
+	}
+	r.Header.Add("Content-Type", "text/markdown")
+	r.Header.Add("x-api-key", secret)
+	client := &http.Client{}
+	_, err = client.Do(r)
+	if err != nil {
+		// 发送失败
+		return
 	}
 }
 

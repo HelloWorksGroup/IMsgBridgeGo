@@ -143,14 +143,21 @@ func imageHandler(ctx *kook.ImageMessageContext) {
 }
 
 func qqMsgHandler(msg *message.GroupMessage) {
+	gid := strconv.FormatInt(msg.GroupCode, 10)
+	name := msg.Sender.CardName
+	if name == "" {
+		name = msg.Sender.Nickname
+	}
 	for k, v := range kook2qqRouteMap {
-		gid := strconv.FormatInt(msg.GroupCode, 10)
 		if gid == k {
-			name := msg.Sender.CardName
-			if name == "" {
-				name = msg.Sender.Nickname
-			}
 			go qqMsgToKook(gid, msg.Sender.Uin, v, name, qq.GroupMsgParse(msg))
+		}
+	}
+
+	for k, v := range vc2qqRouteMap {
+		if gid == k {
+			intgid, _ := strconv.Atoi(v.Gid)
+			go vocechatSend(v.Url, intgid, v.Secret, "**`"+name+"`** 转发自 QQ:\n"+qq.GroupMsg2Markdown(msg))
 		}
 	}
 }

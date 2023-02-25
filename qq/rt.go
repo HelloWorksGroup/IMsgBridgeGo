@@ -105,7 +105,33 @@ func GroupMsgParse(msg *message.GroupMessage) (qqmsg []QQMsg) {
 		case *message.ReplyElement:
 			qqmsg = append(qqmsg, QQMsg{3, "[回复:" + strconv.FormatInt(int64(e.ReplySeq), 10) + "]"})
 		default:
-			qqmsg = append(qqmsg, QQMsg{4, "[未识别的消息类型]"})
+			qqmsg = append(qqmsg, QQMsg{4, "[无法转发的消息类型]"})
+		}
+	}
+	return
+}
+
+func GroupMsg2Markdown(msg *message.GroupMessage) (qqmsg string) {
+	for _, elem := range msg.Elements {
+		switch e := elem.(type) {
+		case *message.TextElement:
+			qqmsg += e.Content + "\n"
+		case *message.GroupImageElement:
+			qqmsg += "![](" + e.Url + ")\n"
+		case *message.FaceElement:
+			qqmsg += "[表情:" + e.Name + "]\n"
+		case *message.MarketFaceElement:
+			qqmsg += "[商店表情:" + e.Name + "]\n"
+		case *message.AtElement:
+			if e.Target != bot.Instance.Uin {
+				qqmsg += "[" + e.Display + "]"
+			}
+		case *message.RedBagElement:
+			qqmsg += "[红包:" + e.Title + "]\n"
+		case *message.ReplyElement:
+			qqmsg += "[回复:" + strconv.FormatInt(int64(e.ReplySeq), 10) + "]"
+		default:
+			qqmsg += "[无法转发的消息类型]\n"
 		}
 	}
 	return

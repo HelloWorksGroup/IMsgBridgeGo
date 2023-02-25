@@ -12,10 +12,6 @@ func qqbotInit() {
 	qq.OnMsg(qqMsgHandler)
 }
 
-func qqGetKookMarkdown(content string) {
-	qq.RouteKOOK2QQText(content)
-}
-
 func qqbotStart() {
 	config.Init()
 	// 快速初始化
