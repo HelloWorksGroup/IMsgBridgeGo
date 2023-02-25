@@ -28,8 +28,11 @@ var token string
 
 var db *scribble.Driver
 
-func routeMapSetup() {
+func routeMapInit() {
 	routeMap = make(map[string]string, 0)
+	kookInviteUrl = make(map[string]string, 0)
+}
+func routeMapSetupOld() {
 	s := viper.Get("kook2qq").(map[string]any)
 	for k, v := range s {
 		vs := v.(string)
@@ -44,7 +47,6 @@ func routeMapSetup() {
 	}
 }
 func kookInviteUrlSetup() {
-	kookInviteUrl = make(map[string]string, 0)
 	s := viper.Get("kookinvite").(map[string]any)
 	for k, v := range s {
 		vs := v.(string)
@@ -53,8 +55,25 @@ func kookInviteUrlSetup() {
 		}
 	}
 }
+func RouteMapSetup() {
+	s := viper.Get("routes").([]any)
+	for _, newmap := range s {
+		fmt.Println(newmap)
+		route := newmap.(map[string]any)
+		fmt.Println(route["type"])
+		if route["type"] == "kook2qq" {
+			if route["host"] != nil && route["qqgroup"] != nil {
+				routeMap[route["host"].(string)] = route["qqgroup"].(string)
+				routeMap[route["qqgroup"].(string)] = route["host"].(string)
+				if route["hostinvite"] != nil {
+					kookInviteUrl[route["host"].(string)] = route["hostinvite"].(string)
+				}
+			}
+		}
+	}
+}
 
-func getConfig() {
+func GetConfig() {
 	rand.Seed(time.Now().UnixNano())
 	db, _ = scribble.New("./database", nil)
 	viper.SetDefault("token", "0")
@@ -72,7 +91,11 @@ func getConfig() {
 	stdoutChannel = viper.Get("stdoutChannel").(string)
 	fmt.Println("stdoutChannel=" + stdoutChannel)
 	token = viper.Get("token").(string)
-	routeMapSetup()
+
+	routeMapInit()
+	routeMapSetupOld()
+	RouteMapSetup()
+
 	kookInviteUrlSetup()
 	kookLastCacheSetup()
 	msgCacheSetup()

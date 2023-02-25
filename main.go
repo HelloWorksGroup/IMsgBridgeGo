@@ -56,7 +56,7 @@ var gLog log.Logger
 
 func prog(state overseer.State) {
 	fmt.Printf("App#[%s] start ...\n", state.ID)
-	getConfig()
+	GetConfig()
 
 	gLog = log.Logger{
 		Level: log.InfoLevel,
@@ -126,7 +126,7 @@ func main() {
 	overseer.Run(overseer.Config{
 		Required: true,
 		Program:  prog,
-		Fetcher:  &fetcher.File{Path: "KOOK2QQ"},
+		Fetcher:  &fetcher.File{Path: "Route2QQ"},
 		Debug:    false,
 	})
 }

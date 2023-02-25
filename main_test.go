@@ -35,5 +35,18 @@ func TestViper(t *testing.T) {
 			}
 		}
 	}
+
+	s1 := viper.Get("routes").([]any)
+	for _, newmap := range s1 {
+		// fmt.Println(newmap)
+		route := newmap.(map[string]any)
+		// fmt.Println(route["type"])
+		if route["type"] == "kook2qq" {
+			if route["host"] != nil && route["qqgroup"] != nil {
+				testmap[route["host"].(string)] = route["qqgroup"].(string)
+				testmap[route["qqgroup"].(string)] = route["host"].(string)
+			}
+		}
+	}
 	fmt.Println(testmap)
 }

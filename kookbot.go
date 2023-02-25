@@ -4,13 +4,11 @@ import (
 	"math/rand"
 	"regexp"
 	"strconv"
-	"sync"
 	"time"
 
 	"github.com/lonelyevil/kook"
 )
 
-var commOnce sync.Once
 var commRules []handlerRule = []handlerRule{
 	{`^qqping`, func(ctxCommon *kook.EventDataGeneral, s []string, f func(string) string) {
 		delay := rand.Intn(500) + rand.Intn(100) + rand.Intn(50) + rand.Intn(14)
