@@ -61,6 +61,14 @@ func kookLink2Link(content string) string {
 	return content
 }
 
+func kookMsgToVC(ctx *kook.KmarkdownMessageContext, guildId string, api string, gid string, secret string) {
+	name := ctx.Extra.Author.Nickname
+	content := ctx.Common.Content
+	gidInt, _ := strconv.Atoi(gid)
+	vocechatSend(api, gidInt, secret, "**`"+name+"`** 转发自 KOOK:\n"+content)
+
+}
+
 func kookMsgToQQGroup(ctx *kook.KmarkdownMessageContext, guildId string, groupId string) {
 	gLog.Info().Msgf("kmsg-log:%v", ctx)
 	if _, ok := kookLastCache[ctx.Common.TargetID]; ok {
@@ -154,7 +162,7 @@ func qqMsgHandler(msg *message.GroupMessage) {
 		}
 	}
 
-	for k, v := range vc2qqRouteMap {
+	for k, v := range qq2vcRouteMap {
 		if gid == k {
 			intgid, _ := strconv.Atoi(v.Gid)
 			go vocechatSend(v.Url, intgid, v.Secret, "**`"+name+"`** 转发自 QQ:\n"+qq.GroupMsg2Markdown(msg))
@@ -174,6 +182,15 @@ func escapeToCleanUnicode(raw string) (string, error) {
 		return -1
 	}, str)
 	return clean, nil
+}
+
+func vcMsgToKook(channel string, name string, content string) {
+	card := kcard.KHLCard{}
+	card.Init()
+	card.Card.Theme = "success"
+	card.AddModule_markdown("**`" + name + "`** 转发自 vocechat:\n---")
+	card.AddModule_markdown(content)
+	sendKCard(channel, card.String())
 }
 
 // DONE: 相同用户短时间连续发言自动合并

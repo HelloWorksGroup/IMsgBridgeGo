@@ -24,7 +24,9 @@ type vocechatInstance struct {
 	Gid    string
 }
 
-var vc2qqRouteMap map[string]vocechatInstance
+var qq2vcRouteMap map[string]vocechatInstance
+
+var kook2vcRouteMap map[string]vocechatInstance
 
 // 邀请map
 var kookInviteUrl map[string]string
@@ -39,7 +41,8 @@ var token string
 var db *scribble.Driver
 
 func routeMapInit() {
-	vc2qqRouteMap = make(map[string]vocechatInstance, 0)
+	qq2vcRouteMap = make(map[string]vocechatInstance, 0)
+	kook2vcRouteMap = make(map[string]vocechatInstance, 0)
 	kook2qqRouteMap = make(map[string]string, 0)
 	kookInviteUrl = make(map[string]string, 0)
 }
@@ -87,10 +90,17 @@ func RouteMapSetup() {
 		}
 		if route["type"] == "vc2qq" {
 			if route["gid"] != nil && route["vcapi"] != nil && route["secret"] != nil && route["qqgroup"] != nil {
-				vc2qqRouteMap[route["qqgroup"].(string)] = vocechatInstance{Url: route["vcapi"].(string), Secret: route["secret"].(string), Gid: route["gid"].(string)}
+				qq2vcRouteMap[route["qqgroup"].(string)] = vocechatInstance{Url: route["vcapi"].(string), Secret: route["secret"].(string), Gid: route["gid"].(string)}
 				vcCount += 1
 			}
 		}
+		if route["type"] == "kook2vc" {
+			if route["gid"] != nil && route["vcapi"] != nil && route["secret"] != nil && route["host"] != nil {
+				kook2vcRouteMap[route["host"].(string)] = vocechatInstance{Url: route["vcapi"].(string), Secret: route["secret"].(string), Gid: route["gid"].(string)}
+				vcCount += 1
+			}
+		}
+
 	}
 }
 

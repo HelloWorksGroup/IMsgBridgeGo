@@ -146,6 +146,11 @@ func markdownMessageHandler(ctx *kook.KmarkdownMessageContext) {
 				go kookMsgToQQGroup(ctx, k, v)
 			}
 		}
+		for kookGid, v := range kook2vcRouteMap {
+			if ctx.Common.TargetID == kookGid {
+				go kookMsgToVC(ctx, kookGid, v.Url, v.Gid, v.Secret)
+			}
+		}
 	}
 }
 

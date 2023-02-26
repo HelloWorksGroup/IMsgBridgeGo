@@ -50,29 +50,40 @@ func handleWebhook(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	var vcJSON vocechatJSON
 	decoder.Decode(&vcJSON)
+	// 获取用户信息
+	getUser := func(v vocechatInstance) vocechatUser {
+		r, err := http.Get(v.Url + "/user/" + strconv.Itoa(vcJSON.From))
+		if err != nil {
+			// Error log
+		}
+		decoder := json.NewDecoder(r.Body)
+		var user vocechatUser
+		decoder.Decode(&user)
+		return user
+	}
 	// 判断是否是新消息
 	if vcJSON.Detail.Type == "normal" {
 		// 判断消息是否属于转发列表
-		for qqgroup, v := range vc2qqRouteMap {
+		for qqgroup, v := range qq2vcRouteMap {
 			if v.Gid == strconv.Itoa(vcJSON.Target.Gid) {
-				// 获取用户名称
-				r, err := http.Get(v.Url + "/user/" + strconv.Itoa(vcJSON.From))
-				var name string = "未知姓名"
-				if err != nil {
-					// Error log
-				}
-				decoder := json.NewDecoder(r.Body)
-				var user vocechatUser
-				decoder.Decode(&user)
+				user := getUser(v)
 				// 判断消息是否是机器人发送
 				if user.IsBot {
 					return
 				}
-				name = user.Name
 				// 转发消息至目的地
 				id, _ := strconv.ParseInt(qqgroup, 10, 64)
-				qq.SendToQQGroup(name+" 转发自 vocechat:\n"+vcJSON.Detail.Content, id)
-				return
+				go qq.SendToQQGroup(user.Name+" 转发自 vocechat:\n"+vcJSON.Detail.Content, id)
+			}
+		}
+		for kookGid, v := range kook2vcRouteMap {
+			if v.Gid == strconv.Itoa(vcJSON.Target.Gid) {
+				user := getUser(v)
+				// 判断消息是否是机器人发送
+				if user.IsBot {
+					return
+				}
+				go vcMsgToKook(kookGid, user.Name, vcJSON.Detail.Content)
 			}
 		}
 	}
