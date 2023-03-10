@@ -1,10 +1,11 @@
 package main
 
 import (
+	"context"
+	"io/ioutil"
 	kcard "local/khlcard"
 	qq "local/rt"
-	"math/rand"
-	"path"
+	"net/http"
 	"regexp"
 	"strconv"
 	"strings"
@@ -112,39 +113,54 @@ func imageHandler(ctx *kook.ImageMessageContext) {
 		kookLastCache[ctx.Common.TargetID] = kookLastMsgs{}
 	}
 	gLog.Info().Msgf("[KOOK Image]:[name=%v][url=%v]", ctx.Extra.Author.Nickname, ctx.Extra.Attachments.URL)
-	var title string
-	var showUrl bool = false
 	for k, v := range kook2qqRouteMap {
 		if ctx.Common.TargetID == k {
-			gid, _ := strconv.ParseInt(v, 10, 64)
-			casen := rand.Intn(100)
-			if casen <= 10 {
-				title = "[访问KOOK图床查看图片]"
-				showUrl = true
-			} else if casen <= 20 {
-				title = "[图片未通过QQ审查]"
-			} else if casen <= 40 {
-				title = "[当前版本QQ不支持的消息]"
-			} else if casen <= 60 {
-				title = "[图片转发至QQ失败]"
-			} else if casen <= 80 {
-				title = "[未能成功转发图片]"
-			} else if casen <= 100 {
-				title = "[请进入KOOK端查看图片]"
-			}
-			var inviteStr string = ""
-			if _, ok := kookInviteUrl[k]; ok {
-				inviteStr = "\n邀请链接：" + kookInviteUrl[k]
-			}
+			gidStr := v
 			go func() {
-				var mid int32
-				if showUrl {
-					mid = qq.SendToQQGroup(ctx.Extra.Author.Nickname+" 转发自 KOOK:\n"+title+"\n"+ctx.Extra.Attachments.URL, gid)
-				} else {
-					mid = qq.SendToQQGroup(ctx.Extra.Author.Nickname+" 转发自 KOOK:\n"+title+"\n"+path.Base(ctx.Extra.Attachments.URL)+"\n请使用KOOK查看。"+inviteStr, gid)
+				gid, _ := strconv.ParseInt(gidStr, 10, 64)
+				// 超时退出
+				context, cancel := context.WithCancel(context.Background())
+				defer cancel()
+				ch := make(chan bool, 1)
+				// 下载图片后发送至QQ群
+				go func() {
+					// mid = qq.SendToQQGroup(ctx.Extra.Author.Nickname+" 尝试转发图片自 KOOK:\n"+ctx.Extra.Attachments.URL, gid)
+					// msgCache.GetMsg(strconv.FormatInt(gid, 10), strconv.FormatInt(int64(mid), 10), ctx.Extra.Author.ID, ctx.Extra.Author.Nickname)
+					resp, err := http.Get(ctx.Extra.Attachments.URL)
+					if err != nil {
+						return
+					}
+					defer resp.Body.Close()
+					data, err := ioutil.ReadAll(resp.Body)
+					if err != nil {
+						panic(err)
+					}
+
+					msgs := make([]message.IMessageElement, 0)
+					msgs = append(msgs, message.NewText(ctx.Extra.Author.Nickname+" 转发图片自 KOOK:"))
+					imgMsg, err := qq.UploadImgToQQGroup(data, gid)
+					if err == nil {
+						msgs = append(msgs, imgMsg)
+					} else {
+						msgs = append(msgs, message.NewText("Failed..."))
+					}
+					mid := qq.SendToQQGroupEx(msgs, gid)
+					msgCache.GetMsg(strconv.FormatInt(gid, 10), strconv.FormatInt(int64(mid), 10), ctx.Extra.Author.ID, ctx.Extra.Author.Nickname)
+					gLog.Info().Msgf("[SEND QQ msg]:[ID=%d]", mid)
+
+					select {
+					default:
+						ch <- true
+					case <-context.Done():
+						return
+					}
+				}()
+				select {
+				case <-ch:
+					return
+				case <-time.After(20 * time.Second):
+					gLog.Info().Msgf("[SEND QQ IMG]:TIMEOUT")
 				}
-				msgCache.GetMsg(strconv.FormatInt(gid, 10), strconv.FormatInt(int64(mid), 10), ctx.Extra.Author.ID, ctx.Extra.Author.Nickname)
-				gLog.Info().Msgf("[SEND QQ msg]:[ID=%d]", mid)
 			}()
 		}
 	}
