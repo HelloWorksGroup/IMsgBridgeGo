@@ -3,6 +3,7 @@ package route
 // 本模块用于将QQ消息转发至KOOK，并将KOOK消息转发至QQ
 
 import (
+	"bytes"
 	"strconv"
 	"sync"
 
@@ -57,6 +58,13 @@ func SendToQQGroup(content string, groupId int64) int32 {
 	m := message.NewSendingMessage().Append(message.NewText(content))
 	ret := bot.Instance.SendGroupMessage(groupId, m)
 	return ret.Id
+}
+
+func UploadImgToQQGroup(img []byte, groupId int64) (msg message.IMessageElement, err error) {
+	return bot.Instance.UploadImage(message.Source{
+		PrimaryID:  groupId,
+		SourceType: message.SourceGroup,
+	}, bytes.NewReader(img))
 }
 
 func (a *rt) MiraiGoModule() bot.ModuleInfo {
