@@ -49,7 +49,7 @@ func (s *AllChannelInstances) GetMsg(gid string, mid string, uid string, name st
 			}
 		}
 	}
-	s.instances[found].MsgCache = append(s.instances[found].MsgCache, msgDetail{MsgId: mid, Uid: uid, Timestamp: time.Now().Unix()})
+	s.instances[found].MsgCache = append(s.instances[found].MsgCache, msgDetail{MsgId: mid, Uid: uid, Display: name, Timestamp: time.Now().Unix()})
 }
 func (s *AllChannelInstances) WhomReply(gid string, mid string) (uid string, name string) {
 	var foundGid int = -1
