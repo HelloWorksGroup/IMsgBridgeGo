@@ -23,12 +23,12 @@ import (
 
 var appName string = "QQ Hime"
 
-var buildVersion string = appName + " 0042"
+var buildVersion string = appName + " 0043"
 
 func buildUpdateLog() string {
 	updateLog := ""
-	updateLog += "1. 增加QQ端图片转发功能\n"
-	updateLog += "\n\nHelloWorks-QQ Hime@[GitHub](https://github.com/HelloWorksGroup/KOOK2QQ-bot)"
+	updateLog += "1. 修复了at QQ昵称的显示\n"
+	updateLog += "\n\nHelloWorks-QQ Hime@[GitHub](https://github.com/HelloWorksGroup/Route2QQ-bot)"
 	return updateLog
 }
 
