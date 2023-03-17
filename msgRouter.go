@@ -168,7 +168,7 @@ func imageHandler(ctx *kook.ImageMessageContext) {
 
 func qqMsgHandler(msg *message.GroupMessage) {
 	gid := strconv.FormatInt(msg.GroupCode, 10)
-	name := msg.Sender.CardName
+	name := msg.Sender.DisplayName()
 	if name == "" {
 		name = msg.Sender.Nickname
 	}
