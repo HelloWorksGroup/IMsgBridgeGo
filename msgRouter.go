@@ -19,10 +19,10 @@ import (
 
 // TODO: 大量辣鸡代码待优化
 
-// TODO: 支持消息回复
-// TODO: 将kook回复标记转换成 qq @ uid
+// : 支持消息回复
+// : 将kook回复标记转换成 qq @ uid
 
-// TODO: 更多 的kmarkdown tag 处理
+// TODO: 更多 kmarkdown tag 处理
 // TODO: 处理KOOK服务器表情
 // TODO: 移除对于机器人自身的at转发，QQ & KOOK
 // 将(met)bot id(met)\s+ 变为 @ name
@@ -168,7 +168,7 @@ func imageHandler(ctx *kook.ImageMessageContext) {
 
 func qqMsgHandler(msg *message.GroupMessage) {
 	gid := strconv.FormatInt(msg.GroupCode, 10)
-	name := msg.Sender.CardName
+	name := msg.Sender.DisplayName()
 	if name == "" {
 		name = msg.Sender.Nickname
 	}
