@@ -19,10 +19,10 @@ import (
 
 // TODO: 大量辣鸡代码待优化
 
-// TODO: 支持消息回复
-// TODO: 将kook回复标记转换成 qq @ uid
+// : 支持消息回复
+// : 将kook回复标记转换成 qq @ uid
 
-// TODO: 更多 的kmarkdown tag 处理
+// TODO: 更多 kmarkdown tag 处理
 // TODO: 处理KOOK服务器表情
 // TODO: 移除对于机器人自身的at转发，QQ & KOOK
 // 将(met)bot id(met)\s+ 变为 @ name
@@ -95,7 +95,7 @@ func kookMsgToQQGroup(ctx *kook.KmarkdownMessageContext, guildId string, groupId
 		quoteUid, _ := strconv.ParseInt(replyUid, 10, 64)
 		msgs = append(msgs, message.NewText(name+" 转发自 KOOK:\n"))
 		if len(replyName) > 0 {
-			msgs = append(msgs, message.NewAt(quoteUid, replyName))
+			msgs = append(msgs, message.NewAt(quoteUid, "@"+replyName))
 		} else {
 			msgs = append(msgs, message.NewAt(quoteUid))
 		}
