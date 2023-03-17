@@ -95,7 +95,7 @@ func kookMsgToQQGroup(ctx *kook.KmarkdownMessageContext, guildId string, groupId
 		quoteUid, _ := strconv.ParseInt(replyUid, 10, 64)
 		msgs = append(msgs, message.NewText(name+" 转发自 KOOK:\n"))
 		if len(replyName) > 0 {
-			msgs = append(msgs, message.NewAt(quoteUid, "@"+replyName))
+			msgs = append(msgs, message.NewAt(quoteUid, replyName))
 		} else {
 			msgs = append(msgs, message.NewAt(quoteUid))
 		}
