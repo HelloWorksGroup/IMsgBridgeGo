@@ -23,13 +23,26 @@ import (
 
 var appName string = "QQ Hime"
 
-var buildVersion string = appName + " 0043"
+var buildVersion string = appName + " 0050"
 
 func buildUpdateLog() string {
 	updateLog := ""
-	updateLog += "1. 修复了at QQ昵称的显示\n"
+	updateLog += "1. 更新协议库等\n"
 	updateLog += "\n\nHelloWorks-QQ Hime@[GitHub](https://github.com/HelloWorksGroup/Route2QQ-bot)"
 	return updateLog
+}
+
+type IMNode interface {
+	init()
+	start() error
+	stop()
+	registMsgHandler()
+	routeMsg2Group(gid string, uid string, msg string)
+	sendMsg2Group(gid string, msg string)
+	// sendMsg2Person(uid string, msg string)
+	sendImg2GroupByBytes(gid string, img []byte)
+	sendImg2GroupByUrl(gid string, url string)
+	name() string
 }
 
 type handlerRule struct {
@@ -77,11 +90,12 @@ func prog(state overseer.State) {
 	s.Open()
 	localSession = s
 
-	// Wait here until CTRL-C or other term signal is received.
-	fmt.Println(appName + " is now running.")
+	fmt.Println("KOOK node online.")
 
 	qqbotInit()
 	qqbotStart()
+
+	fmt.Println("QQ node online.")
 
 	if viper.Get("oldversion").(string) != buildVersion {
 		go func() {

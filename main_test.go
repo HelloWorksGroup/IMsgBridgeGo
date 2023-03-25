@@ -2,14 +2,14 @@ package main_test
 
 import (
 	"fmt"
+	qq "qqNode"
 	"testing"
 
-	"github.com/Nigh/MiraiGo-Template-Mod/bot"
 	"github.com/spf13/viper"
 )
 
 func TestGenDevice(t *testing.T) {
-	bot.GenRandomDevice()
+	qq.GenRandomDevice()
 }
 
 var testmap map[string]string

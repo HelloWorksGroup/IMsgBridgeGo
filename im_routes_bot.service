@@ -1,5 +1,5 @@
 [Unit]
-Description=route2qq_bot
+Description=im_routes_bot
 
 Wants=network.target
 After=syslog.target network-online.target

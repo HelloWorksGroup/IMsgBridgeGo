@@ -1,10 +1,7 @@
 package main
 
 import (
-	"github.com/Nigh/MiraiGo-Template-Mod/bot"
-	"github.com/Nigh/MiraiGo-Template-Mod/config"
-
-	qq "local/rt"
+	qq "qqNode"
 )
 
 func qqbotInit() {
@@ -13,27 +10,27 @@ func qqbotInit() {
 }
 
 func qqbotStart() {
-	config.Init()
+	qq.ConfigInit()
 	// 快速初始化
-	bot.Init()
+	qq.Init()
 
 	// 初始化 Modules
-	bot.StartService()
+	qq.StartService()
 
 	// 使用协议
 	// 不同协议可能会有部分功能无法使用
 	// 在登陆前切换协议
-	bot.UseProtocol(bot.AndroidWatch)
+	qq.UseProtocol(qq.AndroidWatch)
 
 	// 登录
-	err := bot.Login()
+	err := qq.Login()
 	if err == nil {
 		// 登录成功，保存 token 信息
-		bot.SaveToken()
+		qq.SaveToken()
 	}
 
 	// 刷新好友列表，群列表
-	bot.RefreshList()
+	qq.RefreshList()
 }
 func qqbotSayhello() {
 }

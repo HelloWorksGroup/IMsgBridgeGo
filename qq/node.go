@@ -1,4 +1,4 @@
-package route
+package qq
 
 // 本模块用于将QQ消息转发至KOOK，并将KOOK消息转发至QQ
 
@@ -9,13 +9,12 @@ import (
 
 	"github.com/Mrs4s/MiraiGo/client"
 	"github.com/Mrs4s/MiraiGo/message"
-	"github.com/Nigh/MiraiGo-Template-Mod/bot"
 )
 
-type rt struct {
+type node struct {
 }
 
-var instance *rt
+var instance *node
 
 type QQMsg struct {
 	Type    int
@@ -23,8 +22,8 @@ type QQMsg struct {
 }
 
 func init() {
-	instance = &rt{}
-	bot.RegisterModule(instance)
+	instance = &node{}
+	RegisterModule(instance)
 }
 
 var validGroupId int64 = 0
@@ -42,7 +41,7 @@ func OnMsg(handler func(msg *message.GroupMessage)) {
 func RouteKOOK2QQText(content string) {
 	go func() {
 		m := message.NewSendingMessage().Append(message.NewText(content))
-		bot.Instance.SendGroupMessage(validGroupId, m)
+		Instance.SendGroupMessage(validGroupId, m)
 	}()
 }
 
@@ -51,45 +50,45 @@ func SendToQQGroupEx(e []message.IMessageElement, groupId int64) int32 {
 	for _, v := range e {
 		m.Append(v)
 	}
-	ret := bot.Instance.SendGroupMessage(groupId, m)
+	ret := Instance.SendGroupMessage(groupId, m)
 	return ret.Id
 }
 func SendToQQGroup(content string, groupId int64) int32 {
 	m := message.NewSendingMessage().Append(message.NewText(content))
-	ret := bot.Instance.SendGroupMessage(groupId, m)
+	ret := Instance.SendGroupMessage(groupId, m)
 	return ret.Id
 }
 
 func UploadImgToQQGroup(img []byte, groupId int64) (msg message.IMessageElement, err error) {
-	return bot.Instance.UploadImage(message.Source{
+	return Instance.UploadImage(message.Source{
 		PrimaryID:  groupId,
 		SourceType: message.SourceGroup,
 	}, bytes.NewReader(img))
 }
 
-func (a *rt) MiraiGoModule() bot.ModuleInfo {
-	return bot.ModuleInfo{
+func (a *node) MiraiGoModule() ModuleInfo {
+	return ModuleInfo{
 		ID:       "kook.route",
 		Instance: instance,
 	}
 }
 
-func (a *rt) Init() {
+func (a *node) Init() {
 }
 
-func (a *rt) PostInit() {
+func (a *node) PostInit() {
 }
 
-func (a *rt) Serve(b *bot.Bot) {
+func (a *node) Serve(b *Bot) {
 	b.GroupMessageEvent.Subscribe(func(c *client.QQClient, msg *message.GroupMessage) {
 		externMsgHandler(msg)
 	})
 }
 
-func (a *rt) Start(bot *bot.Bot) {
+func (a *node) Start(bot *Bot) {
 }
 
-func (a *rt) Stop(bot *bot.Bot, wg *sync.WaitGroup) {
+func (a *node) Stop(bot *Bot, wg *sync.WaitGroup) {
 	defer wg.Done()
 }
 
@@ -105,7 +104,7 @@ func GroupMsgParse(msg *message.GroupMessage) (qqmsg []QQMsg) {
 		case *message.MarketFaceElement:
 			qqmsg = append(qqmsg, QQMsg{0, "[商店表情:" + e.Name + "]"})
 		case *message.AtElement:
-			if e.Target != bot.Instance.Uin {
+			if e.Target != Instance.Uin {
 				qqmsg = append(qqmsg, QQMsg{2, "[" + e.Display + "]"})
 			}
 		case *message.RedBagElement:
@@ -131,7 +130,7 @@ func GroupMsg2Markdown(msg *message.GroupMessage) (qqmsg string) {
 		case *message.MarketFaceElement:
 			qqmsg += "[商店表情:" + e.Name + "]\n"
 		case *message.AtElement:
-			if e.Target != bot.Instance.Uin {
+			if e.Target != Instance.Uin {
 				qqmsg += "[" + e.Display + "]"
 			}
 		case *message.RedBagElement:
