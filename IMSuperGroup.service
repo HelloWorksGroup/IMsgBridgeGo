@@ -1,5 +1,5 @@
 [Unit]
-Description=im_routes_bot
+Description=IMSuperGroup
 
 Wants=network.target
 After=syslog.target network-online.target
@@ -16,7 +16,7 @@ Restart=on-failure
 # restart延迟
 RestartSec=10
 # 每天自动重启
-RuntimeMaxSec=86400
+RuntimeMaxSec=86390
 KillMode=process
 # kill进程时发送的信号，默认为SIGTERM
 KillSignal=SIGINT

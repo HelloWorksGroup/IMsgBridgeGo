@@ -1,7 +1,7 @@
 package main
 
 import (
-	kcard "local/khlcard"
+	kcard "kcard"
 	"time"
 )
 
@@ -21,11 +21,10 @@ type msgDetail struct {
 }
 
 type channelInstance struct {
-	Id        string // 群号
-	Target    string // 转发目标
-	InviteUrl string // 邀请链接
-	LastMsg   kookLastMsgs
-	MsgCache  []msgDetail
+	Id       string // 群号
+	Target   string // 转发目标
+	LastMsg  kookLastMsgs
+	MsgCache []msgDetail
 }
 
 type AllChannelInstances struct {

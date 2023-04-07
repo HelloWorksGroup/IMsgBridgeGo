@@ -25,7 +25,6 @@ import (
 // Bot 全局 Bot
 type Bot struct {
 	*client.QQClient
-
 	start bool
 }
 

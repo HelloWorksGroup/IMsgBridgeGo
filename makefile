@@ -1,3 +1,3 @@
 
 default:
-	go build -o ./deploy/Route2QQ
+	go build -o ./deploy/IMSuperGroup

@@ -1,7 +1,5 @@
 package qq
 
-// 本模块用于将QQ消息转发至KOOK，并将KOOK消息转发至QQ
-
 import (
 	"bytes"
 	"strconv"
@@ -10,9 +8,6 @@ import (
 	"github.com/Mrs4s/MiraiGo/client"
 	"github.com/Mrs4s/MiraiGo/message"
 )
-
-type node struct {
-}
 
 var instance *node
 
@@ -68,7 +63,7 @@ func UploadImgToQQGroup(img []byte, groupId int64) (msg message.IMessageElement,
 
 func (a *node) MiraiGoModule() ModuleInfo {
 	return ModuleInfo{
-		ID:       "kook.route",
+		ID:       "route",
 		Instance: instance,
 	}
 }

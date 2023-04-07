@@ -1,0 +1,16 @@
+github.com/bits-and-blooms/bitset v1.2.0/go.mod h1:gIdJ4wp64HaoK2YrL1Q5/N7Y16edYb8uY+O0FJTyyDA=
+github.com/bits-and-blooms/bitset v1.2.2 h1:J5gbX05GpMdBjCvQ9MteIg2KKDExr7DrgK+Yc15FvIk=
+github.com/bits-and-blooms/bitset v1.2.2/go.mod h1:gIdJ4wp64HaoK2YrL1Q5/N7Y16edYb8uY+O0FJTyyDA=
+github.com/bits-and-blooms/bloom/v3 v3.2.0 h1:N+g3GTQ0TVbghahYyzwkQbMZR+IwIwFFC8dpIChtN0U=
+github.com/bits-and-blooms/bloom/v3 v3.2.0/go.mod h1:MC8muvBzzPOFsrcdND/A7kU7kMhkqb9KI70JlZCP+C8=
+github.com/gorilla/websocket v1.5.0 h1:PPwGk2jz7EePpoHN/+ClbZu8SPxiqlu12wZP/3sWmnc=
+github.com/gorilla/websocket v1.5.0/go.mod h1:YR8l580nyteQvAITg2hZ9XVh4b55+EU/adAjf1fMHhE=
+github.com/lonelyevil/kook v0.0.29/go.mod h1:WjHC7AmbmNjInT/U/etBVOmAw7T6EqdCwApceRGs1sk=
+github.com/lonelyevil/kook v0.0.33 h1:+rXofbtiwJhZmQ9WSuuQT4oNtsumItdy56zNLrB6Z5U=
+github.com/lonelyevil/kook v0.0.33/go.mod h1:WjHC7AmbmNjInT/U/etBVOmAw7T6EqdCwApceRGs1sk=
+github.com/lonelyevil/kook/log_adapter/plog v0.0.31 h1:L3lpDpxXcD6nEbT00gj2rMfa2TNScbUbnyAwXSIgmKc=
+github.com/lonelyevil/kook/log_adapter/plog v0.0.31/go.mod h1:J/ClWHIMo9hALhK88Zd+zZ5jC6nKfBx8XDWicO+QRZc=
+github.com/phuslu/log v1.0.80/go.mod h1:kzJN3LRifrepxThMjufQwS7S35yFAB+jAV1qgA7eBW4=
+github.com/phuslu/log v1.0.83 h1:zfqz5tfFPLF8w0jEscpDxE2aFg1Y1kcbORDPliKdIbU=
+github.com/phuslu/log v1.0.83/go.mod h1:yAZh4pv6KxAsJDmJIcVSMxkMiUF7mJbpFN3vROkf0dc=
+github.com/spaolacci/murmur3 v1.1.0/go.mod h1:JwIasOWyU6f++ZhiEuf87xNszmSA2myDM2Kzu9HwQUA=

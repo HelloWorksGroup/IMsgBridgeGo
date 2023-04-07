@@ -7,66 +7,65 @@ import (
 	"strconv"
 	"time"
 
-	kcard "local/khlcard"
+	"github.com/HelloWorksGroup/IMSuperGroup/imnode"
 
 	"github.com/jpillora/overseer"
 	"github.com/jpillora/overseer/fetcher"
-	"github.com/lonelyevil/kook"
-	"github.com/lonelyevil/kook/log_adapter/plog"
 	"github.com/phuslu/log"
 	"github.com/spf13/viper"
 )
 
-// TODO:
-// qq 二维码发送至 kook 登录
-// qq 接口由 kook stdio 频道控制
+var appName string = "IMSuperGroup"
 
-var appName string = "QQ Hime"
-
-var buildVersion string = appName + " 0050"
+var buildVersion string = appName + " 0100"
 
 func buildUpdateLog() string {
 	updateLog := ""
-	updateLog += "1. 更新协议库等\n"
-	updateLog += "\n\nHelloWorks-QQ Hime@[GitHub](https://github.com/HelloWorksGroup/Route2QQ-bot)"
+	updateLog += "1. 重大更新，详见GitHub\n"
+	updateLog += "\n\nHelloWorks-IMSuperGroup@[GitHub](https://github.com/HelloWorksGroup/IMSuperGroup)"
 	return updateLog
 }
 
-type IMNode interface {
-	init()
-	start() error
-	stop()
-	registMsgHandler()
-	routeMsg2Group(gid string, uid string, msg string)
-	sendMsg2Group(gid string, msg string)
-	// sendMsg2Person(uid string, msg string)
-	sendImg2GroupByBytes(gid string, img []byte)
-	sendImg2GroupByUrl(gid string, url string)
-	name() string
-}
+var gLog log.Logger
+var nodes []imnode.IMNode
+var superGroups [][]string
 
-type handlerRule struct {
-	matcher string
-	getter  func(ctxCommon *kook.EventDataGeneral, matchs []string, reply func(string) string)
-}
-
-func kookLog(markdown string) {
-	gLog.Info().Msgf("kq-log:%s", markdown)
+// 在绑定了stdio通道的IM节点发送LOG
+func remoteIMLog(markdown string) {
+	gLog.Info().Msgf("REMOTE-LOG:%s", markdown)
 	localTime := time.Now().Local()
 	strconv.Itoa(localTime.Hour())
 	strconv.Itoa(localTime.Minute())
 	strconv.Itoa(localTime.Second())
 	tstr := fmt.Sprintf("%02d:%02d:%02d", localTime.Hour(), localTime.Minute(), localTime.Second())
-	fmt.Println("["+tstr+" KOOK LOG]:", markdown)
-	if stdoutChannel != "0" {
-		sendMarkdown(stdoutChannel, "`"+tstr+"` "+markdown)
+	// fmt.Println("["+tstr+" REMOTE LOG]:", markdown)
+	// if stdoutChannel != "0" {
+	// TODO:
+	// kook.SendMarkdown(stdoutChannel, "`"+tstr+"` "+markdown)
+	// }
+	md := "`" + tstr + "` " + markdown
+	for _, v := range nodes {
+		v.SendStdioLog(md)
 	}
 }
 
-var gLog log.Logger
+func allNodeBeforeShutdown() {
+	for _, v := range nodes {
+		v.BeforeStop()
+	}
+	// msgCache.Backup()
+}
+
+func allNodeShutdown() {
+	for _, v := range nodes {
+		v.Stop()
+	}
+}
 
 func prog(state overseer.State) {
 	fmt.Printf("App#[%s] start ...\n", state.ID)
+	nodes = make([]imnode.IMNode, 0)
+	superGroups = make([][]string, 0)
 	GetConfig()
 
 	gLog = log.Logger{
@@ -74,101 +73,57 @@ func prog(state overseer.State) {
 		Writer: &log.MultiEntryWriter{
 			&log.ConsoleWriter{ColorOutput: true},
 			&log.FileWriter{
-				Filename:   "kq.log",
+				Filename:   "IMR.log",
 				MaxSize:    512 << 10,
 				MaxBackups: 16,
 				LocalTime:  true},
 		},
 	}
-
-	s := kook.New(token, plog.NewLogger(&gLog))
-	me, _ := s.UserMe()
-	fmt.Println("ID=" + me.ID)
-	botID = me.ID
-	s.AddHandler(markdownMessageHandler)
-	s.AddHandler(imageMessageHandler)
-	s.Open()
-	localSession = s
-
-	fmt.Println("KOOK node online.")
-
-	qqbotInit()
-	qqbotStart()
-
-	fmt.Println("QQ node online.")
-
+	// TODO: Nodes init & start
+	for _, v := range nodes {
+		gLog.Info().Msgf("Node [" + v.Name() + "] Starting")
+		if v.Start() != nil {
+			gLog.Error().Msgf("Node [" + v.Name() + "] Start FAILED!!!")
+		} else {
+			gLog.Info().Msgf("Node [" + v.Name() + "] ONLINE")
+		}
+	}
 	if viper.Get("oldversion").(string) != buildVersion {
 		go func() {
 			<-time.After(time.Second * time.Duration(3))
-			card := kcard.KHLCard{}
-			card.Init()
-			card.Card.Theme = "success"
-			card.AddModule_header(appName + " 热更新完成")
-			card.AddModule_divider()
-			card.AddModule_markdown("当前版本号：`" + buildVersion + "`")
-			card.AddModule_markdown("**更新内容：**\n" + buildUpdateLog())
-			sendKCard(stdoutChannel, card.String())
+			updateLog := appName + " 热更新完成"
+			updateLog += "\n当前版本号：`" + buildVersion + "`\n"
+			updateLog += "**更新内容：**\n" + buildUpdateLog()
+			remoteIMLog(updateLog)
 		}()
 	}
 	viper.Set("oldversion", buildVersion)
 	viper.WriteConfig()
 
-	kookLog("系统已完全启动")
-	msgCache.gc()
+	remoteIMLog("系统已完全启动")
+	// msgCache.gc()
 
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, os.Interrupt, overseer.SIGUSR2)
 	sig := <-sc
 	if sig == overseer.SIGUSR2 {
-		kookLog("检测到二进制变更，系统即将进行快速重启")
+		remoteIMLog("检测到二进制变更，系统即将进行快速重启")
 	} else {
-		kookLog("接收到外部指令，系统即将关闭")
+		remoteIMLog("接收到外部指令，系统即将关闭")
 	}
-	beforeShutdown()
+	allNodeBeforeShutdown()
 
-	fmt.Println("Bot will shutdown after 1 second.")
-
+	gLog.Info().Msgf("Bot will shutdown after 1 second.")
 	<-time.After(time.Second * time.Duration(1))
-	qqbotStop()
-	// Cleanly close down the KHL session.
-	s.Close()
+	allNodeShutdown()
+	gLog.Info().Msgf("[SHUTDOWN]")
 }
 
 func main() {
 	overseer.Run(overseer.Config{
 		Required: true,
 		Program:  prog,
-		Fetcher:  &fetcher.File{Path: "Route2QQ"},
+		Fetcher:  &fetcher.File{Path: "IMSuperGroup"},
 		Debug:    false,
 	})
-}
-
-func markdownMessageHandler(ctx *kook.KmarkdownMessageContext) {
-	if ctx.Extra.Author.Bot {
-		return
-	}
-	switch ctx.Common.TargetID {
-	case botID:
-		directMessageHandler(ctx.Common)
-	case stdoutChannel:
-		stdinHandler(ctx)
-	default:
-		for k, v := range kook2qqRouteMap {
-			if ctx.Common.TargetID == k {
-				go kookMsgToQQGroup(ctx, k, v)
-			}
-		}
-		for kookGid, v := range kook2vcRouteMap {
-			if ctx.Common.TargetID == kookGid {
-				go kookMsgToVC(ctx, kookGid, v.Url, v.Gid, v.Secret)
-			}
-		}
-	}
-}
-
-func imageMessageHandler(ctx *kook.ImageMessageContext) {
-	if ctx.Extra.Author.Bot {
-		return
-	}
-	imageHandler(ctx)
 }

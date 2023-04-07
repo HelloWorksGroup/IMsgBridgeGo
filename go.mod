@@ -1,22 +1,20 @@
-module github.com/HelloWorksGroup/KOOK2QQ-bot
+module github.com/HelloWorksGroup/IMSuperGroup
 
 go 1.20
 
 require (
-	github.com/Mrs4s/MiraiGo v0.0.0-20230319092203-62d60f132203
-	github.com/jinzhu/copier v0.3.5
+	github.com/HelloWorksGroup/IMSuperGroup/imnode v0.0.0-00010101000000-000000000000
 	github.com/jpillora/overseer v1.1.6
-	github.com/lonelyevil/kook v0.0.32
-	github.com/lonelyevil/kook/log_adapter/plog v0.0.31
 	github.com/nanobox-io/golang-scribble v0.0.0-20190309225732-aa3e7c118975
 	github.com/phuslu/log v1.0.83
 	github.com/spf13/viper v1.15.0
-	local/khlcard v0.0.0-00010101000000-000000000000
+	kookNode v0.0.0-00010101000000-000000000000
 	qqNode v0.0.0-00010101000000-000000000000
 )
 
 require (
 	github.com/Baozisoftware/qrcode-terminal-go v0.0.0-20170407111555-c0650d8dff0f // indirect
+	github.com/Mrs4s/MiraiGo v0.0.0-20230319092203-62d60f132203 // indirect
 	github.com/RomiChan/protobuf v0.1.1-0.20230204044148-2ed269a2e54d // indirect
 	github.com/RomiChan/syncx v0.0.0-20221202055724-5f842c53020e // indirect
 	github.com/StackExchange/wmi v1.2.1 // indirect
@@ -33,6 +31,8 @@ require (
 	github.com/jpillora/s3 v1.1.4 // indirect
 	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible // indirect
 	github.com/lestrrat-go/strftime v1.0.6 // indirect
+	github.com/lonelyevil/kook v0.0.33 // indirect
+	github.com/lonelyevil/kook/log_adapter/plog v0.0.31 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/maruel/rs v1.1.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
@@ -61,10 +61,10 @@ require (
 	rsc.io/qr v0.2.0 // indirect
 )
 
-replace local/khlcard => ./kcard
-
 replace qqNode => ./qq
 
 replace kookNode => ./kook
 
 replace vcNode => ./vocechat
+
+replace github.com/HelloWorksGroup/IMSuperGroup/imnode => ./imnode

@@ -1,0 +1,37 @@
+{
+	"kook2qq": {
+		"3311688251521062": "187031174",
+		"4641712772375343": "194036738",
+		"9613942620038360": "602471976"
+	},
+	"kookinvite": {
+		"3311688251521062": "https://kook.top/VXCE5O",
+		"4641712772375343": "https://kook.top/dLH68C",
+		"9613942620038360": "https://kook.top/dLH68C"
+	},
+	"routes": [
+		{
+			"type": "kook2qq",
+			"host": "3311688251521062",
+			"qqgroup": "187031174",
+			"hostinvite": "https://kook.top/VXCE5O"
+		},
+		{
+			"type": "kook2qq",
+			"host": "4641712772375343",
+			"qqgroup": "194036738",
+			"hostinvite": "https://kook.top/dLH68C"
+		},
+		{
+			"type": "kook2qq",
+			"host": "9613942620038360",
+			"qqgroup": "602471976",
+			"hostinvite": "https://kook.top/dLH68C"
+		}
+	],
+	"lastwordsid": "",
+	"masterid": "2604301727",
+	"oldversion": "QQ Hime 0034",
+	"stdoutchannel": "4340480165461793",
+	"token": "1/MTIzMTY=/xyyERXlCCJLYLHEZox8c9w=="
+}
