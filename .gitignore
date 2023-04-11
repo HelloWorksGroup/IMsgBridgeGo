@@ -19,3 +19,6 @@ config.json
 database
 database.json
 deploy
+
+config*.json
+*.gobak

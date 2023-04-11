@@ -1,8 +1,8 @@
-package khlcard
+package kookNode
 
 import "encoding/json"
 
-type KHLCard struct {
+type KCard struct {
 	Card kCard
 }
 
@@ -10,12 +10,12 @@ type kTheme string
 
 const (
 	Primary   kTheme = "primary"
-	Success          = "success"
-	Danger           = "danger"
-	Warning          = "warning"
-	Info             = "info"
-	Secondary        = "secondary"
-	None             = "none"
+	Success   kTheme = "success"
+	Danger    kTheme = "danger"
+	Warning   kTheme = "warning"
+	Info      kTheme = "info"
+	Secondary kTheme = "secondary"
+	None      kTheme = "none"
 )
 
 type kType0 string // card
@@ -25,26 +25,26 @@ type kSize string
 
 const (
 	Large  kSize = "lg"
-	Medium       = "md"
-	Small        = "sm"
-	XSmall       = "xs"
+	Medium kSize = "md"
+	Small  kSize = "sm"
+	XSmall kSize = "xs"
 )
 const (
 	Card kType0 = "card"
 )
 const (
 	Header    kType1 = "header"
-	Section          = "section"
-	Context          = "context"
-	Divider          = "divider"
-	Countdown        = "countdown"
-	Container        = "container"
-	File             = "file"
+	Section   kType1 = "section"
+	Context   kType1 = "context"
+	Divider   kType1 = "divider"
+	Countdown kType1 = "countdown"
+	Container kType1 = "container"
+	File      kType1 = "file"
 )
 const (
 	Plaintext kType2 = "plain-text"
-	Image            = "image"
-	Kmarkdown        = "kmarkdown"
+	Image     kType2 = "image"
+	Kmarkdown kType2 = "kmarkdown"
 )
 
 type KField struct {
@@ -80,17 +80,17 @@ type kCard struct {
 	Modules []KModule `json:"modules"`
 }
 
-func (card *KHLCard) Init() *KHLCard {
+func (card *KCard) Init() *KCard {
 	card.Card.Type = Card
 	card.Card.Size = Large
 	card.Card.Theme = Primary
 	return card
 }
-func (card *KHLCard) AddModule(module KModule) {
+func (card *KCard) AddModule(module KModule) {
 	card.Card.Modules = append(card.Card.Modules, module)
 }
 
-func (card *KHLCard) AddModule_image(url string) {
+func (card *KCard) AddModule_image(url string) {
 	card.Card.Modules = append(card.Card.Modules, KModule{
 		Type: "container",
 		Elements: []KField{
@@ -101,7 +101,7 @@ func (card *KHLCard) AddModule_image(url string) {
 		},
 	})
 }
-func (card *KHLCard) AddModule_markdown(content string) {
+func (card *KCard) AddModule_markdown(content string) {
 	card.Card.Modules = append(card.Card.Modules, KModule{
 		Type: "section",
 		Text: KField{
@@ -110,7 +110,7 @@ func (card *KHLCard) AddModule_markdown(content string) {
 		},
 	})
 }
-func (card *KHLCard) AddModule_header(content string) {
+func (card *KCard) AddModule_header(content string) {
 	card.Card.Modules = append(card.Card.Modules, KModule{
 		Type: "header",
 		Text: KField{
@@ -119,12 +119,12 @@ func (card *KHLCard) AddModule_header(content string) {
 		},
 	})
 }
-func (card *KHLCard) AddModule_divider() {
+func (card *KCard) AddModule_divider() {
 	card.Card.Modules = append(card.Card.Modules, KModule{
 		Type: "divider",
 	})
 }
-func (card *KHLCard) String() string {
+func (card *KCard) String() string {
 	jsons, _ := json.Marshal([]kCard{card.Card})
 	return string(jsons)
 }

@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	kook "kookNode"
+	vc "vcNode"
 
 	scribble "github.com/nanobox-io/golang-scribble"
 	"github.com/spf13/viper"
@@ -53,9 +54,14 @@ func GetConfig() {
 		node := v.(map[string]any)
 		switch node["type"] {
 		case "kook":
-			nodes = append(nodes, kook.Setup(convertMap2StrStr(node), &gLog))
+			n := kook.Setup(node, &gLog)
+			n.SetMsgHandler(globalMsgRouter)
+			nodes = append(nodes, n)
 		case "qq":
 		case "vc":
+			n := vc.Setup(node, &gLog)
+			n.SetMsgHandler(globalMsgRouter)
+			nodes = append(nodes, n)
 		case "webhook":
 		}
 		fmt.Println(node["type"].(string) + ":")

@@ -2,6 +2,7 @@ package main_test
 
 import (
 	"fmt"
+	kook "kookNode"
 	qq "qqNode"
 	"testing"
 
@@ -30,6 +31,21 @@ func convertMap2StrStr(m map[string]interface{}) map[string]string {
 		}
 	}
 	return result
+}
+
+func convertAnySlice2StrSlice(slice []interface{}) []string {
+	var s []string
+
+	for _, v := range slice {
+		switch val := v.(type) {
+		case string:
+			s = append(s, val)
+		default:
+			s = append(s, fmt.Sprintf("%v", val))
+		}
+	}
+
+	return s
 }
 
 func convertAny2StrSlice(v interface{}) []string {
@@ -62,14 +78,19 @@ func TestViper(t *testing.T) {
 		node := v.(map[string]any)
 		switch node["type"] {
 		case "kook":
-			nodes = append(nodes, kook.Setup(convertMap2StrStr(node), nil))
+			nodes = append(nodes, kook.Setup(node, nil))
 		case "qq":
 		case "vc":
 		case "webhook":
 		}
+
 		fmt.Println(node["type"].(string) + ":")
 		fmt.Print("\t")
 		fmt.Println(node)
+		fmt.Printf("Type of groups is %T\n", node["groups"])
+		for _, v := range convertAnySlice2StrSlice(node["groups"].([]any)) {
+			fmt.Println(v)
+		}
 	}
 
 	s1 := viper.Get("supergroups").([]any)

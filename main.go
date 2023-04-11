@@ -63,11 +63,8 @@ func allNodeShutdown() {
 }
 
 func prog(state overseer.State) {
-	fmt.Printf("App#[%s] start ...\n", state.ID)
 	nodes = make([]imnode.IMNode, 0)
 	superGroups = make([][]string, 0)
-	GetConfig()
-
 	gLog = log.Logger{
 		Level: log.InfoLevel,
 		Writer: &log.MultiEntryWriter{
@@ -79,6 +76,9 @@ func prog(state overseer.State) {
 				LocalTime:  true},
 		},
 	}
+	gLog.Info().Msgf("App#[%s] START --->\n", state.ID)
+	GetConfig()
+
 	// TODO: Nodes init & start
 	for _, v := range nodes {
 		gLog.Info().Msgf("Node [" + v.Name() + "] Starting")
@@ -116,7 +116,7 @@ func prog(state overseer.State) {
 	gLog.Info().Msgf("Bot will shutdown after 1 second.")
 	<-time.After(time.Second * time.Duration(1))
 	allNodeShutdown()
-	gLog.Info().Msgf("[SHUTDOWN]")
+	gLog.Info().Msgf("App#[%s] SHUTDOWN --->\n", state.ID)
 }
 
 func main() {
