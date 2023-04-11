@@ -63,7 +63,7 @@ func (n *vchat) SendStdioLog(markdown string) {
 }
 
 func (n *vchat) RouteMsg2Group(gid string, msg *imnode.IMMsg) {
-	md := "**`" + msg.ShowName + "`** 转发自 " + msg.Type + " :\n---\n" + msg.Content
+	md := "#### `" + msg.ShowName + "` 转发自 **" + msg.Type + "** :\n" + msg.Content
 	n.send(gid, n.secret, md)
 }
 func (n *vchat) RouteImg2GroupByBytes(gid string, img []byte) {
@@ -85,7 +85,7 @@ func (n *vchat) SetMsgHandler(handler func(gid string, msg *imnode.IMMsg)) {
 }
 
 func (n *vchat) Name() string {
-	return "vocechat-" + n.secret[:3]
+	return "vocechat[" + n.secret[:3] + "]"
 }
 
 type vocechatUser struct {
