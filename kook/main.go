@@ -85,7 +85,7 @@ func (n *node) SetMsgHandler(handler func(gid string, msg *imnode.IMMsg)) {
 }
 
 func (n *node) Name() string {
-	return "KOOK-" + n.token[9:12]
+	return "KOOK[" + n.token[12:15] + "]"
 }
 
 func (n *node) markdownMessageHandler(ctx *kook.KmarkdownMessageContext) {
@@ -104,6 +104,11 @@ func (n *node) imageMessageHandler(ctx *kook.ImageMessageContext) {
 	if ctx.Extra.Author.Bot {
 		return
 	}
+	msg := &imnode.IMMsg{}
+	msg.Type = n.Name()
 	// TODO:
-	// imageHandler(ctx)
+	msg.Content = "[图片]"
+	msg.UID = ctx.Common.AuthorID
+	msg.ShowName = ctx.Extra.Author.Nickname
+	n.msgHandler(ctx.Common.TargetID, msg)
 }

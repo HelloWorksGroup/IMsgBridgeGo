@@ -38,11 +38,6 @@ func remoteIMLog(markdown string) {
 	strconv.Itoa(localTime.Minute())
 	strconv.Itoa(localTime.Second())
 	tstr := fmt.Sprintf("%02d:%02d:%02d", localTime.Hour(), localTime.Minute(), localTime.Second())
-	// fmt.Println("["+tstr+" REMOTE LOG]:", markdown)
-	// if stdoutChannel != "0" {
-	// TODO:
-	// kook.SendMarkdown(stdoutChannel, "`"+tstr+"` "+markdown)
-	// }
 	md := "`" + tstr + "` " + markdown
 	for _, v := range nodes {
 		v.SendStdioLog(md)
