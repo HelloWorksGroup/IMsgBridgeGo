@@ -42,7 +42,7 @@ func (n *vchat) GroupIDValid(gid string) bool {
 }
 func (n *vchat) Start() error {
 	http.HandleFunc("/", n.handleWebhook)
-	http.ListenAndServe(":"+n.port, nil)
+	go http.ListenAndServe(":"+n.port, nil)
 	return nil
 }
 func (n *vchat) BeforeStop() {
