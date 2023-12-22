@@ -1,9 +1,9 @@
-module github.com/HelloWorksGroup/IMSuperGroup
+module github.com/HelloWorksGroup/IMsgBridgeGo
 
 go 1.20
 
 require (
-	github.com/HelloWorksGroup/IMSuperGroup/imnode v0.0.0-00010101000000-000000000000
+	github.com/HelloWorksGroup/IMsgBridgeGo/imnode v0.0.0-00010101000000-000000000000
 	github.com/jpillora/overseer v1.1.6
 	github.com/nanobox-io/golang-scribble v0.0.0-20190309225732-aa3e7c118975
 	github.com/phuslu/log v1.0.83
@@ -68,4 +68,4 @@ replace kookNode => ./kook
 
 replace vcNode => ./vocechat
 
-replace github.com/HelloWorksGroup/IMSuperGroup/imnode => ./imnode
+replace github.com/HelloWorksGroup/IMsgBridgeGo/imnode => ./imnode

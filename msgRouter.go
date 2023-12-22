@@ -5,7 +5,7 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/HelloWorksGroup/IMSuperGroup/imnode"
+	"github.com/HelloWorksGroup/IMsgBridgeGo/imnode"
 )
 
 func escapeToCleanUnicode(raw string) (string, error) {

@@ -6,7 +6,7 @@ import (
 	qq "qqNode"
 	"testing"
 
-	"github.com/HelloWorksGroup/IMSuperGroup/imnode"
+	"github.com/HelloWorksGroup/IMsgBridgeGo/imnode"
 	"github.com/spf13/viper"
 )
 

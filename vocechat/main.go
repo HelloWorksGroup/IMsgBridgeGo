@@ -8,7 +8,7 @@ import (
 
 	"github.com/phuslu/log"
 
-	"github.com/HelloWorksGroup/IMSuperGroup/imnode"
+	"github.com/HelloWorksGroup/IMsgBridgeGo/imnode"
 )
 
 type vchat struct {

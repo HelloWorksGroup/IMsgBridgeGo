@@ -1,4 +1,4 @@
-# IMSuperGroup 
+# IMsgBridgeGo 
 即时通讯工具消息互通机器人
 
 ## Usage

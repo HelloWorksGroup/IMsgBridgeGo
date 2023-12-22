@@ -1,3 +1,3 @@
 
 default:
-	go build -o ./deploy/IMSuperGroup
+	go build -o ./deploy/IMsgBridgeGo

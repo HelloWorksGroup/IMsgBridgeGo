@@ -3,7 +3,7 @@ package kookNode
 import (
 	"github.com/phuslu/log"
 
-	"github.com/HelloWorksGroup/IMSuperGroup/imnode"
+	"github.com/HelloWorksGroup/IMsgBridgeGo/imnode"
 	"github.com/lonelyevil/kook"
 	"github.com/lonelyevil/kook/log_adapter/plog"
 )

@@ -1,3 +1,3 @@
-module github.com/HelloWorksGroup/IMSuperGroup/imnode
+module github.com/HelloWorksGroup/IMsgBridgeGo/imnode
 
 go 1.20

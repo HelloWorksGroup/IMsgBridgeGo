@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/HelloWorksGroup/IMSuperGroup/imnode"
+	"github.com/HelloWorksGroup/IMsgBridgeGo/imnode"
 
 	"github.com/jpillora/overseer"
 	"github.com/jpillora/overseer/fetcher"
@@ -15,14 +15,14 @@ import (
 	"github.com/spf13/viper"
 )
 
-var appName string = "IMSuperGroup"
+var appName string = "IMsgBridgeGo"
 
 var buildVersion string = appName + " 0100"
 
 func buildUpdateLog() string {
 	updateLog := ""
 	updateLog += "1. 重大更新，详见GitHub\n"
-	updateLog += "\n\nHelloWorks-IMSuperGroup@[GitHub](https://github.com/HelloWorksGroup/IMSuperGroup)"
+	updateLog += "\n\nHelloWorks-IMsgBridgeGo@[GitHub](https://github.com/HelloWorksGroup/IMsgBridgeGo)"
 	return updateLog
 }
 
@@ -118,7 +118,7 @@ func main() {
 	overseer.Run(overseer.Config{
 		Required: true,
 		Program:  prog,
-		Fetcher:  &fetcher.File{Path: "IMSuperGroup"},
+		Fetcher:  &fetcher.File{Path: "IMsgBridgeGo"},
 		Debug:    false,
 	})
 }

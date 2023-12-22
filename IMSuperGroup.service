@@ -1,5 +1,5 @@
 [Unit]
-Description=IMSuperGroup
+Description=IMsgBridgeGo
 
 Wants=network.target
 After=syslog.target network-online.target
