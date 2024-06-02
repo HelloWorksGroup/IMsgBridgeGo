@@ -253,7 +253,8 @@ func qqMsgToKook(gid string, uid int64, channel string, name string, msgs []qq.Q
 		case 0: // 可合并消息
 			if len(v.Content) > 0 && v.Content != " " {
 				// 忽略QQ回复消息自带的空白消息(一个0x20字符)
-				cachedStr += v.Content
+				clean, _ := escapeToCleanUnicode(v.Content)
+				cachedStr += clean
 			}
 		case 1:
 			cachedStrRelease()
@@ -261,7 +262,8 @@ func qqMsgToKook(gid string, uid int64, channel string, name string, msgs []qq.Q
 		case 2: // At
 			atCount += 1
 			if atCount == 1 {
-				cachedStr += v.Content
+				clean, _ := escapeToCleanUnicode(v.Content)
+				cachedStr += clean
 			}
 		case 3: // Reply
 			var mid string
@@ -274,7 +276,8 @@ func qqMsgToKook(gid string, uid int64, channel string, name string, msgs []qq.Q
 			if len(replyUid) > 0 {
 				cachedStr += "(met)" + replyUid + "(met) "
 			} else {
-				cachedStr += v.Content
+				clean, _ := escapeToCleanUnicode(v.Content)
+				cachedStr += clean
 			}
 		case 4: // Unknown
 			cachedStrRelease()
