@@ -1,3 +1,6 @@
+> [!WARNING]
+> This project is deprecated. for similar needs please visit https://github.com/Nigh/forward-hime
+
 # Route2QQ-bot
 QQ消息互通机器人
 
